@@ -4,7 +4,7 @@
 
 Calcolo divisione pasto
 
-Riduce la quantià di crocchette giornaliera di mdo che il numero ottenuto diviso in numero dei pasti dia resto 0.
+Riduce la quantià di crocchette giornaliera di modo che il numero ottenuto diviso in numero dei pasti dia resto 0.
 La quantità sottratta viene aggiunta al primo pasto per avere più possibilità di correzioni
 
 
