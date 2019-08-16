@@ -7,12 +7,17 @@ void Data_Time_Class::rtc_setup() {
 	Wire.begin();
 	RTC.begin();
 
-	if (!RTC.isrunning()) {
-		RTC.adjust(DateTime(__DATE__, __TIME__));
+	RTC.adjust(DateTime(__DATE__, __TIME__));
+
+	if (RTC.isrunning()) {
+		if (DEBUG_SERIAL_PRINT_ON)
+			Serial.println("rtc setup completed");
 	}
+	else
+		error.system_status(CRITICAL_ERROR_8400);
 }
 
-void Data_Time_Class::get_data_time(uint16_t *y, uint8_t *m, uint8_t *d, uint8_t *h, uint8_t *min, uint8_t *s) {
+void Data_Time_Class::get_data_time(uint16_t *y, byte *m, byte *d, byte *h, byte *min, byte *s) {
 	
 	DateTime now = RTC.now();
 
@@ -22,15 +27,13 @@ void Data_Time_Class::get_data_time(uint16_t *y, uint8_t *m, uint8_t *d, uint8_t
 	*h = now.hour();
 	*min = now.minute();
 	*s = now.second();
-
 }
 
 
 bool Data_Time_Class::ceck() {
 	
-	if (!RTC.isrunning()) {
+	if (RTC.isrunning()) {
 		return true;
 	}
-	return false;
+	return error.system_status(CRITICAL_ERROR_8400);
 }
-

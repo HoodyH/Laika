@@ -18,8 +18,8 @@ Arduino mega interupt pin
 
 
   //HOPPER------------------------------------------------------------------------
-  //motor
-  #define MOTOR_MAIN_STEP_PIN       54
+  //motor (X soket on ramps 1.4)
+  #define MOTOR_MAIN_STEP_PIN       54		
   #define MOTOR_MAIN_DIR_PIN        55
   #define MOTOR_MAIN_ENABLE_PIN     38
   #define MOTOR_MAIN_CS_PIN         53
@@ -63,7 +63,7 @@ Arduino mega interupt pin
   #define BTN_EN2_PIN               33
   #define BTN_ENC_PIN               35
   //buzzer
-  #define BEEPER_PIN                23
+  #define BEEPER_PIN                37
   //killswitch
   #define KILL_PIN                  41
 
@@ -75,6 +75,8 @@ Arduino mega interupt pin
   #define RTC_SCL_PIN               21
   //led_out
   #define LED_RGB_PIN
+  //Power Supply
+  #define PS_ON						12
 
   //DAILY DOSER-------------------------------------------------------------------
   //motor
@@ -84,6 +86,15 @@ Arduino mega interupt pin
   #define MOTOR_DOSER_CS_PIN        49
   //actuator
   #define ACTUATOR_PIN              9   //BIG MOSFET D9
+
+
+  //another motor pinout
+  //motor (Z soket on ramps 1.4)
+  #define MOTOR_OTHER_STEP_PIN      26		
+  #define MOTOR_OTHER_DIR_PIN       28
+  #define MOTOR_OTHER_ENABLE_PIN    24
+  //#define MOTOR_OTHER_CS_PIN        ??
+
 
   //END CONFIG--------------------------------------------------------------------
 

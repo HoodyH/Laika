@@ -1,11 +1,15 @@
 {
   "ExpandedNodes": [
     "",
+    "\\merda_varia",
     "\\src",
     "\\src\\dropper",
+    "\\src\\lcd",
     "\\src\\planner",
-    "\\src\\rtc"
+    "\\src\\rtc",
+    "\\src\\sd",
+    "\\src\\utility"
   ],
-  "SelectedNode": "\\LaikaD.ino",
+  "SelectedNode": "\\src\\rtc\\datatime.h",
   "PreviewInSolutionExplorer": false
 }
