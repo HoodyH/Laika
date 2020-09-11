@@ -3,6 +3,7 @@
 #include "../pins.h"
 #include "../config.h"
 #include "../sd/cardrw.h"
+#include "../planner/manage.h"
 
 #include "errors.h"
 #include "buzzer.h"

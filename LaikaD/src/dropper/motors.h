@@ -4,6 +4,7 @@
 #define _MOTORS_h
 
 #include "arduino.h"
+#include <Servo.h>
 
 #define ADJ_COEFICENT 4				//int
 #define COUNT_VALUE_RESET 1			//int

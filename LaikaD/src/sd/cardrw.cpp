@@ -1,5 +1,8 @@
 #include <SD.h>
+#include <ArduinoJson.h>
 #include "../config.h"
+#include "../pins.h"
+#include "../utility/errors.h"
 #include "../rtc/datatime.h"
 #include "../planner/manage.h"
 
@@ -341,7 +344,7 @@ void Card_rw_Class::save_record()
 	{
 		if (DEBUG_SERIAL_PRINT_ON)
 			Serial.println(F("Failed to create file record.out"));
-		return false;
+		return;
 	}
 
 	StaticJsonBuffer<1024> jsonBuffer;
@@ -451,7 +454,7 @@ bool Card_rw_Class::read(String file_name)
 	if (!file)
 	{
 		Serial.println(F("Failed to opern"));
-		return;
+		return false;
 	}
 
 	String TextInFile;

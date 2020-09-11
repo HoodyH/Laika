@@ -1,6 +1,15 @@
-﻿#include "../config.h"
+﻿#include <stdlib.h>
+#include "arduino.h"
+#include "../config.h"
+#include "../pins.h"
+#include "../rtc/datatime.h"
+#include "../sd/cardrw.h"
+#include "../utility/errors.h"
+#include "../utility/buzzer.h"
+#include "../lcd/display.h"
 
 #include "manage.h"
+#include "feed.h"
 
 Data_Time_Class data_time;
 Display_Class display;
