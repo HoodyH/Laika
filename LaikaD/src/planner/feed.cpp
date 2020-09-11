@@ -44,6 +44,7 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 	if (manage.status_drop_and_weigh)
 	{
 
+		// check the weight
 		if ((millis() - last_millis_load_cell_time_ceck) > LOAD_CELL_TIME_CECK)
 		{
 			last_millis_load_cell_time_ceck = millis();
@@ -54,23 +55,29 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 
 				if (load_cell_reading < manage.currently_weight)
 				{
+					// trapdoor springs has failed
+					// the food has liked out of the weighting box
 					digitalWrite(MOTOR_MAIN_ENABLE_PIN, HIGH); //spegne il driver motore
 					digitalWrite(PS_ON, LOW);				   //spegne l'alimentatore
 					load_cell.power_down();					   //spegne il chip della cella di carico
 					return error.system_status(CRITICAL_ERROR_8202);
 				}
 			}
+			// update the current weighted value
 			manage.currently_weight = load_cell_reading;
 		}
 
-		//calcola la velocit� a cui deve andare il motore sulla base di quanto deve pesare.
+		// if the weight has reached a fixed value
+		// start decrese the motor speed
 		if (manage.currently_weight <= (meal_qt_gr - WEIGHT_FOR_FINAL_SPEED))
 		{
-			main_motor_rotation_per_min = meal_qt_gr - manage.currently_weight;
-			main_motor_rotation_per_min = map(main_motor_rotation_per_min, WEIGHT_FOR_FINAL_SPEED, meal_qt_gr, MAIN_MOTOR_MIN_ROTATION_PER_MIN, MAIN_MOTOR_MAX_ROTATION_PER_MIN);
+			int16_t qt_gr_left = meal_qt_gr - manage.currently_weight;
+			main_motor_rotation_per_min = map(qt_gr_left, WEIGHT_FOR_FINAL_SPEED, meal_qt_gr, MAIN_MOTOR_MIN_ROTATION_PER_MIN, MAIN_MOTOR_MAX_ROTATION_PER_MIN);
 		}
 		else
 			main_motor_rotation_per_min = MAIN_MOTOR_FINAL_ROTATION_PER_MIN;
+
+		Serial.println(main_motor_rotation_per_min); //DEBUG
 
 		if (!motors.move_stepper(main_motor_rotation_per_min)) //da il comando di muovere il motore
 			return false;
@@ -136,7 +143,7 @@ bool Feed_Class::unload_food()
 
 		motors.servo_move(pos, servo_speed, &servo_dx_position, &servo_sx_position);
 	}
-	//controllo se � aperto
+	//check if the trapdoor is open
 	if (digitalRead(SWITCH_DOOR_DX_PIN) == SWITCH_DOOR_CLOSE || digitalRead(SWITCH_DOOR_SX_PIN) == SWITCH_DOOR_CLOSE)
 	{
 		motors.servo_detach();
@@ -166,7 +173,8 @@ bool Feed_Class::feed(int16_t meal_qt_gr)
 {
 
 	start_millis_feed_timeout = millis(); //inizializza con il tempo di start ciclo
-	//nel caso in cui salti la corrente o il ciclo fallisca, continua a pesare da dove era rimasto
+
+	// nel caso in cui salti la corrente o il ciclo fallisca, continua a pesare da dove era rimasto
 	meal_qt_gr -= (manage.total_currently_weight + manage.currently_weight);
 
 	manage.status_drop_and_weigh = true;
@@ -176,13 +184,16 @@ bool Feed_Class::feed(int16_t meal_qt_gr)
 		if (ceck_trapdoor_closed())
 		{
 
-			//controlla se la quantit� da pesare sta nel contenitore di pesatura se no divide la pesata
+			//controlla se la quantita' da pesare sta nel contenitore di pesatura se no divide la pesata
 			if (meal_qt_gr > MAX_WEIGHT_IN_WEIGHING_COLLECTOR + OVER_WEIGHT_IN_WEIGHING_COLLECTOR)
+			{
+				Serial.println(meal_qt_gr); //DEBUG
 				//nel caso che il peso sia maggiore dei OVER_WEIGHT_IN_WEIGHING_COLLECTOR esegue una pesata ricorsiva
 				if (manage.status_drop_and_weigh)
 					drop_and_weigh(MAX_WEIGHT_IN_WEIGHING_COLLECTOR);
 				else if (manage.status_drop_and_weigh)
 					drop_and_weigh(meal_qt_gr);
+			}
 
 			if (!manage.status_drop_and_weigh)
 			{

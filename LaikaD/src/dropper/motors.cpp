@@ -61,13 +61,18 @@ void Motors_Class::setup()
 bool Motors_Class::move_stepper(uint16_t rotation_per_min)
 {
 
+	// move the motor forward at a given speed
+	// if the motor is blocked move the motor counter clockwise for a certain amount
+
 	//					  secondi to microsec / rotazioni                  quanti step deve fare per un giro
 	microsec_half_step = ((60 * 1000000 / rotation_per_min) / (MAIN_MOTOR_STEP_PER_ROTATION * MAIN_MOTOR_MICROSTEP)) / 2;
 
 	difference_encoder_stepper = float(abs(step_count_value)) - float(abs(encoder_count_value)) * (float(MAIN_MOTOR_STEP_PER_ROTATION) * float(MAIN_MOTOR_MICROSTEP) / float(ENCODER_MAIN_PULSE_PER_ROTATION)) - ADJ_COEFICENT;
 
+	Serial.println(move_backwards); //DEBUG
 	if (difference_encoder_stepper > MAX_DIF_ENCODER_STEPPER * MAIN_MOTOR_MICROSTEP || difference_encoder_stepper < -MAX_DIF_ENCODER_STEPPER * MAIN_MOTOR_MICROSTEP)
 	{
+		// il motore si e' bloccato procedere all'inversione di marcia
 		error.system_status(ERROR_0203);
 		move_backwards = true;
 		backwards_steps_count = MAIN_MOTOR_STD_BACKWARDS_ROTATION * MAIN_MOTOR_MICROSTEP;
@@ -75,19 +80,23 @@ bool Motors_Class::move_stepper(uint16_t rotation_per_min)
 	}
 	else
 	{
+		// all is right rotate the motor clockwise
 		digitalWrite(MOTOR_MAIN_DIR_PIN, HIGH);
 	}
 
+	// the rotor is stuck, move the motor counter clockwise
 	if (move_backwards)
 	{
 		digitalWrite(MOTOR_MAIN_DIR_PIN, LOW);
 		if (backwards_steps_count <= 0)
 		{
+			// when the backwards_steps_count has reached 0 move the motor forward again
 			move_backwards = false;
 			encoder_count_value = step_count_value = COUNT_VALUE_RESET;
 		}
 	}
 
+	/*
 	if ((millis() - last_micros_motor_blocked) > MOTOR_BLOCKED_TIME_CECK)
 	{
 		last_micros_motor_blocked = millis();
@@ -102,6 +111,7 @@ bool Motors_Class::move_stepper(uint16_t rotation_per_min)
 			motor_blocked_error_count = 0;
 		last_encoder_count_value = encoder_count_value;
 	}
+	*/
 
 	if ((micros() - last_micros_stepper) > microsec_half_step)
 	{
@@ -114,6 +124,8 @@ bool Motors_Class::move_stepper(uint16_t rotation_per_min)
 		step_count_value++;
 		backwards_steps_count--;
 	}
+
+	return true;
 }
 
 void Motors_Class::servo_move(int16_t grade, int8_t speed, int16_t *actual_dx_position, int16_t *actual_sx_position)

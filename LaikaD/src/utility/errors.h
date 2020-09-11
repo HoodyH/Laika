@@ -9,7 +9,7 @@
 
 //gli errrori sono composti da 4 cifre
 //se iniziano con 9 rappresentano un FATAL_ERROR (assolutamente necessario l'intervello) RIAVVIO RICHIESTO
-//se iniziano per 8 rappresentano un CRITICAL_ERROR (rappresenta un problema meccanico potenzialmente grave) RIAVVIO RICHIESTO
+//se iniziano per 8 rappresentano un CRITICAL_ERROR (rappresenta un problema meccanico grave) RIAVVIO RICHIESTO
 //se iniziano per 0 sono normali errori ed il software � in grado sempre di risolverli autonomamente
 //se iniziano per 1 sono errori che potrebbero richiedere l'intervento
 //se iniziano per 2 sono manutanzioni di routine (intervenire entro qualche giorno)
@@ -49,11 +49,11 @@
 #define ERROR_0201 0201
 //8202 durante il pesaggio il cibo esce dalle portelle a causa della molla troppo debole.
 #define CRITICAL_ERROR_8202 8202
-//0203 il motore ha trovato difficolt� nel'erogare e si � bloccato, inversione di marcia. Questo � un errore molto frequente
+//0203 il motore ha trovato difficolt� nel'erogare e si � bloccato, inversione di marcia. Errore molto frequente
 #define ERROR_0203 0203
 //1204 l'encoder � immobile, il motore probabilemte si � bloccato
 #define ERROR_1204 1204
-//9205 l'encoder � immobile, il motore si � bloccato ed � stato bloccato il ciclo di erogazione
+//9205 encoder immobile, il motore bloccato, bloccato il ciclo di erogazione
 #define FATAL_ERROR_9205 9205
 //-------------------------------------------------------------------------------------------------
 //ERRORE_DI_SISTEMA_DI_SCARICO			(x3xx)

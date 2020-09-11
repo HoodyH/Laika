@@ -20,7 +20,8 @@ Feed_Class feed;
 
 void Manage_Class::setup_all()
 {
-
+	// do the setup of all of the modules
+	// also load all the data form the datastore
 	data_time.rtc_setup();
 	card_rw.setup();
 	feed.setup();
@@ -76,7 +77,7 @@ bool Manage_Class::birthday()
 	}
 }
 
-//calcola le porzioni in base ai pasti deve dare al giorno
+//calcola le porzioni in base ai pasti che deve dare al giorno
 void Manage_Class::portion_calculation(uint16_t food)
 {
 
@@ -265,14 +266,15 @@ void Manage_Class::main_function()
 	if (!today_all_done && !error_occur_in_feed)
 	{ //se c'è un errore in erogazione viene bloccato il ciclo di erogazione
 
-		if (its_the_moment() && food_left_in_tank())
-		{ //controlla se è l'ora giusta e quale pasto si deve erogare aggiornando l'indice index_of_this_meal ed il cibo rimasto nel serbatoio
+		if (its_the_moment() && food_left_in_tank() || true) //DEBUG
+		{
+			//controlla se è l'ora giusta e quale pasto si deve erogare
+			// aggiorna l'indice index_of_this_meal
+			// update the food left in the box
 
-			Serial.println("in");				//DEBUG
 			Serial.println(index_of_this_meal); //DEBUG
 			done_meal[index_of_this_meal] = feed.feed(adj_gr_meal[index_of_this_meal]);
 
-			Serial.println("out");					//DEBUG
 			Serial.println(total_currently_weight); //DEBUG
 
 			if (done_meal[index_of_this_meal])
