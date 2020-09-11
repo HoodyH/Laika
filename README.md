@@ -3,6 +3,15 @@
 Software to auto feed my dog.
 Basically it's a dog feeder on a much larger scale.
 
+# Requrements to compile
+
+Install this libraries from the library handler in the arduino IDE
+
+- RTClib
+- ArduinoJson
+- U8glib
+- HX711
+
 ### TODO
 
 Calcolo divisione pasto

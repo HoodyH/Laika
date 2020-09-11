@@ -1,15 +1,22 @@
-﻿#include "../../base.h"
+﻿#include <Wire.h>
+#include <RTClib.h>
+#include "../config.h"
+#include "../utility/errors.h"
+
+#include "datatime.h"
 
 RTC_DS1307 RTC;
 
-void Data_Time_Class::rtc_setup() {
-	
+void Data_Time_Class::rtc_setup()
+{
+
 	Wire.begin();
 	RTC.begin();
 
 	RTC.adjust(DateTime(__DATE__, __TIME__));
 
-	if (RTC.isrunning()) {
+	if (RTC.isrunning())
+	{
 		if (DEBUG_SERIAL_PRINT_ON)
 			Serial.println("rtc setup completed");
 	}
@@ -17,8 +24,9 @@ void Data_Time_Class::rtc_setup() {
 		error.system_status(CRITICAL_ERROR_8400);
 }
 
-void Data_Time_Class::get_data_time(uint16_t *y, byte *m, byte *d, byte *h, byte *min, byte *s) {
-	
+void Data_Time_Class::get_data_time(uint16_t *y, byte *m, byte *d, byte *h, byte *min, byte *s)
+{
+
 	DateTime now = RTC.now();
 
 	*y = now.year();
@@ -29,10 +37,11 @@ void Data_Time_Class::get_data_time(uint16_t *y, byte *m, byte *d, byte *h, byte
 	*s = now.second();
 }
 
+bool Data_Time_Class::ceck()
+{
 
-bool Data_Time_Class::ceck() {
-	
-	if (RTC.isrunning()) {
+	if (RTC.isrunning())
+	{
 		return true;
 	}
 	return error.system_status(CRITICAL_ERROR_8400);
