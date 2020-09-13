@@ -43,62 +43,73 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 
 	if (manage.status_drop_and_weigh)
 	{
-
-		// check the weight
-		if ((millis() - last_millis_load_cell_time_ceck) > LOAD_CELL_TIME_CECK)
+		while (true)
 		{
-			last_millis_load_cell_time_ceck = millis();
-			load_cell_reading = load_cell.get_weight();
-			if (digitalRead(SWITCH_DOOR_DX_PIN) == SWITCH_DOOR_OPEN || digitalRead(SWITCH_DOOR_SX_PIN) == SWITCH_DOOR_OPEN)
+			// the weighing process have a time limit, after that it will be aborted
+			// check before do anything
+			if ((millis() - start_millis_weighing_timeout) > WEIGHING_TIMEOUT)
 			{
-				error.system_status(ERROR_0201);
-
-				if (load_cell_reading < manage.currently_weight)
-				{
-					// trapdoor springs has failed
-					// the food has liked out of the weighting box
-					digitalWrite(MOTOR_MAIN_ENABLE_PIN, HIGH); //spegne il driver motore
-					digitalWrite(PS_ON, LOW);				   //spegne l'alimentatore
-					load_cell.power_down();					   //spegne il chip della cella di carico
-					return error.system_status(CRITICAL_ERROR_8202);
-				}
+				if (manage.currently_weight == 0)
+					error.system_status(FATAL_ERROR_9103);
+				return error.system_status(ERROR_1501);
 			}
-			// update the current weighted value
-			manage.currently_weight = load_cell_reading;
-		}
 
-		// if the weight has reached a fixed value
-		// start decrese the motor speed
-		if (manage.currently_weight <= (meal_qt_gr - WEIGHT_FOR_FINAL_SPEED))
-		{
-			int16_t qt_gr_left = meal_qt_gr - manage.currently_weight;
-			main_motor_rotation_per_min = map(qt_gr_left, WEIGHT_FOR_FINAL_SPEED, meal_qt_gr, MAIN_MOTOR_MIN_ROTATION_PER_MIN, MAIN_MOTOR_MAX_ROTATION_PER_MIN);
-		}
-		else
-			main_motor_rotation_per_min = MAIN_MOTOR_FINAL_ROTATION_PER_MIN;
+			// check the weight in the weighing box
+			if ((millis() - last_millis_load_cell_time_ceck) > LOAD_CELL_TIME_CECK)
+			{
+				last_millis_load_cell_time_ceck = millis(); // update the last check time
+				load_cell_reading = load_cell.get_weight(); // get the weith from the cell
 
-		Serial.println(main_motor_rotation_per_min); //DEBUG
+				Serial.println(load_cell_reading); //DEBUG
 
-		if (!motors.move_stepper(main_motor_rotation_per_min)) //da il comando di muovere il motore
-			return false;
+				// errors check
+				if (digitalRead(SWITCH_DOOR_DX_PIN) == SWITCH_DOOR_OPEN || digitalRead(SWITCH_DOOR_SX_PIN) == SWITCH_DOOR_OPEN)
+				{
+					error.system_status(ERROR_0201); // soft error, spings are not strong enough
 
-		if ((millis() - start_millis_weighing_timeout) > WEIGHING_TIMEOUT)
-		{
-			if (manage.currently_weight == 0)
-				error.system_status(FATAL_ERROR_9103);
-			return error.system_status(ERROR_1501);
-		}
-	}
+					// during the weigh procedure the fool leak out
+					if (load_cell_reading < manage.currently_weight)
+					{
+						digitalWrite(MOTOR_MAIN_ENABLE_PIN, HIGH); //spegne il driver motore
+						digitalWrite(PS_ON, LOW);				   //spegne l'alimentatore
+						load_cell.power_down();					   //spegne il chip della cella di carico
+						return error.system_status(CRITICAL_ERROR_8202);
+					}
+				}
+				// update the current weighted value
+				manage.currently_weight = load_cell_reading;
+			} // end check the weight in the weighing box
 
-	if (manage.currently_weight >= meal_qt_gr)
-	{
+			// calculate the motor speed
+			// if the weight has reached a fixed value
+			// start decrese the motor speed
+			if (manage.currently_weight <= (meal_qt_gr - WEIGHT_FOR_FINAL_SPEED))
+			{
+				int16_t qt_gr_left = meal_qt_gr - manage.currently_weight;
+				main_motor_rotation_per_min = map(qt_gr_left, WEIGHT_FOR_FINAL_SPEED, meal_qt_gr, MAIN_MOTOR_MIN_ROTATION_PER_MIN, MAIN_MOTOR_MAX_ROTATION_PER_MIN);
+			}
+			else
+				main_motor_rotation_per_min = MAIN_MOTOR_FINAL_ROTATION_PER_MIN;
 
-		manage.currently_weight = load_cell.get_weight(); //pesa un ultima volta dopo che il motore si � fermato
+			// move the motor at certain speed
+			// if sucess it will return true else the motor is stuck (fatal)
+			if (!motors.move_stepper(main_motor_rotation_per_min)) // main_motor_rotation_per_min
+				return false;
 
-		digitalWrite(MOTOR_MAIN_ENABLE_PIN, HIGH); //spegne il driver del motore
-		digitalWrite(PS_ON, LOW);				   //spegne l'alimentatore
-		load_cell.power_down();					   //spegne il chip della cella di carico
-		manage.status_drop_and_weigh = false;
+			// check if the weight has been reached
+			// if yes stop the motor and leave the cicle
+			if (manage.currently_weight >= meal_qt_gr)
+			{
+				manage.currently_weight = load_cell.get_weight(); //pesa un ultima volta dopo che il motore si � fermato
+
+				digitalWrite(MOTOR_MAIN_ENABLE_PIN, HIGH); //spegne il driver del motore
+				digitalWrite(PS_ON, LOW);				   //spegne l'alimentatore
+				load_cell.power_down();					   //spegne il chip della cella di carico
+				manage.status_drop_and_weigh = false;
+				break;
+			}
+
+		} // end while cicle
 	}
 
 	return true;
@@ -187,7 +198,6 @@ bool Feed_Class::feed(int16_t meal_qt_gr)
 			//controlla se la quantita' da pesare sta nel contenitore di pesatura se no divide la pesata
 			if (meal_qt_gr > MAX_WEIGHT_IN_WEIGHING_COLLECTOR + OVER_WEIGHT_IN_WEIGHING_COLLECTOR)
 			{
-				Serial.println(meal_qt_gr); //DEBUG
 				//nel caso che il peso sia maggiore dei OVER_WEIGHT_IN_WEIGHING_COLLECTOR esegue una pesata ricorsiva
 				if (manage.status_drop_and_weigh)
 					drop_and_weigh(MAX_WEIGHT_IN_WEIGHING_COLLECTOR);

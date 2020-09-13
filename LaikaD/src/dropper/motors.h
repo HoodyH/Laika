@@ -18,11 +18,10 @@ protected:
 
 	long last_micros_motor_blocked = 0;
 	int16_t last_encoder_count_value = COUNT_VALUE_RESET;
-	byte motor_blocked_error_count = 0;
+	byte motor_blocked_error_count = 0; // NOT USED
 
 	int16_t step_count_value = COUNT_VALUE_RESET;
 	float difference_encoder_stepper;
-	int16_t backwards_steps_count = 0;
 	bool move_backwards = false;
 
 	int16_t servo_delay;

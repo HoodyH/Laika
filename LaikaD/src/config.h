@@ -14,15 +14,15 @@
 //doser config
 
 //funzione drop
-#define MAIN_MOTOR_MAX_ROTATION_PER_MIN 30  //rotation*min
+#define MAIN_MOTOR_MAX_ROTATION_PER_MIN 20  //rotation*min
 #define MAIN_MOTOR_MIN_ROTATION_PER_MIN 4   //rotation*min
-#define MAIN_MOTOR_FINAL_ROTATION_PER_MIN 1 //rotation*min
+#define MAIN_MOTOR_FINAL_ROTATION_PER_MIN 2 //rotation*min
 
 //valore in grammi, ultimi grami in cui il motore gira alla velocit� minima
 #define WEIGHT_FOR_FINAL_SPEED 50 //grams
 
 //ogni quanti milliseconsd viene controllata la cella di carico durante drop()
-#define LOAD_CELL_TIME_CECK 400 //milliseconds
+#define LOAD_CELL_TIME_CECK 800 //milliseconds
 //valore entro il quale la cella di carico pu� misurare un valore inferiore all'ultimo misurato. Per evitare il rimbalzo.
 //#define LOAD_CELL_OSCILLATION_VALUE			6		//grams  attualmente non utilizzato
 

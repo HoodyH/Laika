@@ -12,7 +12,7 @@
 #include "feed.h"
 
 Data_Time_Class data_time;
-Display_Class display;
+//Display_Class display;
 Card_rw_Class card_rw;
 Error_Class error;
 Buzzer_Class buzzer;
@@ -25,7 +25,7 @@ void Manage_Class::setup_all()
 	data_time.rtc_setup();
 	card_rw.setup();
 	feed.setup();
-	display.setup();
+	//display.setup();
 	buzzer.setup();
 
 	//card_rw.load_base_data();

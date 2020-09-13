@@ -62,39 +62,41 @@ bool Motors_Class::move_stepper(uint16_t rotation_per_min)
 {
 
 	// move the motor forward at a given speed
-	// if the motor is blocked move the motor counter clockwise for a certain amount
+	// if the motor is blocked move the motor counter clockwise for a certain amount of steps
 
-	//					  secondi to microsec / rotazioni                  quanti step deve fare per un giro
+	// secondi to (microsec / rotazioni) / (quanti step deve fare per un giro) / 2[in quanto mezzo step]
 	microsec_half_step = ((60 * 1000000 / rotation_per_min) / (MAIN_MOTOR_STEP_PER_ROTATION * MAIN_MOTOR_MICROSTEP)) / 2;
 
+	// calculate the difference between the stepper movement and the encorder read
 	difference_encoder_stepper = float(abs(step_count_value)) - float(abs(encoder_count_value)) * (float(MAIN_MOTOR_STEP_PER_ROTATION) * float(MAIN_MOTOR_MICROSTEP) / float(ENCODER_MAIN_PULSE_PER_ROTATION)) - ADJ_COEFICENT;
 
-	Serial.println(move_backwards); //DEBUG
-	if (difference_encoder_stepper > MAX_DIF_ENCODER_STEPPER * MAIN_MOTOR_MICROSTEP || difference_encoder_stepper < -MAX_DIF_ENCODER_STEPPER * MAIN_MOTOR_MICROSTEP)
+	// if the step difference between the encoder and the motor excede the limit in forward mode
+	// then move backwards
+	if (difference_encoder_stepper > MAX_DIF_ENCODER_STEPPER * MAIN_MOTOR_MICROSTEP && move_backwards == false)
 	{
 		// il motore si e' bloccato procedere all'inversione di marcia
 		error.system_status(ERROR_0203);
 		move_backwards = true;
-		backwards_steps_count = MAIN_MOTOR_STD_BACKWARDS_ROTATION * MAIN_MOTOR_MICROSTEP;
-		encoder_count_value = step_count_value = COUNT_VALUE_RESET;
-	}
-	else
-	{
-		// all is right rotate the motor clockwise
-		digitalWrite(MOTOR_MAIN_DIR_PIN, HIGH);
+		encoder_count_value = step_count_value = COUNT_VALUE_RESET; // reset the encoder counter value
 	}
 
 	// the rotor is stuck, move the motor counter clockwise
+	// count the number backwards_steps
 	if (move_backwards)
 	{
 		digitalWrite(MOTOR_MAIN_DIR_PIN, LOW);
-		if (backwards_steps_count <= 0)
+
+		// check how many steps in backwards mode has been counted
+		if (step_count_value >= MAIN_MOTOR_STD_BACKWARDS_ROTATION * MAIN_MOTOR_MICROSTEP)
 		{
-			// when the backwards_steps_count has reached 0 move the motor forward again
+			// when the backwards steps has reached MAIN_MOTOR_STD_BACKWARDS_ROTATION move the motor forward again
 			move_backwards = false;
-			encoder_count_value = step_count_value = COUNT_VALUE_RESET;
+			encoder_count_value = step_count_value = COUNT_VALUE_RESET; // reset the encoder counter value
+			digitalWrite(MOTOR_MAIN_DIR_PIN, HIGH);
 		}
 	}
+	else // all it's right, rotate the motor clockwise
+		digitalWrite(MOTOR_MAIN_DIR_PIN, HIGH);
 
 	/*
 	if ((millis() - last_micros_motor_blocked) > MOTOR_BLOCKED_TIME_CECK)
@@ -113,23 +115,25 @@ bool Motors_Class::move_stepper(uint16_t rotation_per_min)
 	}
 	*/
 
-	if ((micros() - last_micros_stepper) > microsec_half_step)
+	// Move the motor for a certain number of steps
+
+	int16_t steps_num = 10 * MAIN_MOTOR_MICROSTEP;
+
+	for (int i = 0; i < steps_num; i++)
 	{
 		digitalWrite(MOTOR_MAIN_STEP_PIN, HIGH);
-	}
-	if ((micros() - last_micros_stepper) > microsec_half_step * 2)
-	{
-		last_micros_stepper = micros();
+		delayMicroseconds(microsec_half_step);
 		digitalWrite(MOTOR_MAIN_STEP_PIN, LOW);
-		step_count_value++;
-		backwards_steps_count--;
+		delayMicroseconds(microsec_half_step);
 	}
+	step_count_value += steps_num;
 
 	return true;
 }
 
 void Motors_Class::servo_move(int16_t grade, int8_t speed, int16_t *actual_dx_position, int16_t *actual_sx_position)
 {
+	// move the servo into the given position
 	servo_delay = (1000 / speed);
 
 	servo_door_dx.write(grade);
