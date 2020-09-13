@@ -15,5 +15,4 @@ void loop()
 {
 	manage.main_function();
 	display.update_ui();
-	// manage.test();
 }

@@ -277,14 +277,14 @@ void Manage_Class::main_function()
 
 			DEBUG_PRINTLN("Erogation Done!");
 			DEBUG_PRINT("Erogated weight in g: ");
-			DEBUG_PRINTLN(total_currently_weight);
+			DEBUG_PRINTLN(feed.total_currently_weight);
 
 			// if the meal has been correctly released
 			if (done_meal[index_of_this_meal])
 			{
 				if (index_of_this_meal < n_of_meals)
 				{
-					adj_gr_meal[index_of_this_meal + 1] = original_gr_meal[index_of_this_meal + 1] - (total_currently_weight - adj_gr_meal[index_of_this_meal]);
+					adj_gr_meal[index_of_this_meal + 1] = original_gr_meal[index_of_this_meal + 1] - (feed.total_currently_weight - adj_gr_meal[index_of_this_meal]);
 					index_of_this_meal++;
 					DEBUG_PRINT("Next meal weight: ");
 					DEBUG_PRINTLN(adj_gr_meal[index_of_this_meal + 1]);
@@ -295,10 +295,9 @@ void Manage_Class::main_function()
 					DEBUG_PRINTLN("All done for today");
 				}
 
-				adj_gr_meal[index_of_this_meal] = total_currently_weight;
-				tank_food_left -= total_currently_weight;
-				total_currently_weight = 0;
-				currently_weight = 0;
+				adj_gr_meal[index_of_this_meal] = feed.total_currently_weight;
+				tank_food_left -= feed.total_currently_weight;
+				feed.total_currently_weight = 0;
 
 				DEBUG_PRINT("Food left in the tank: ");
 				DEBUG_PRINTLN(tank_food_left);
@@ -323,22 +322,12 @@ void Manage_Class::main_function()
 	}
 }
 
-void Manage_Class::test()
-{
-
-	data_time.get_data_time(&year, &month, &day, &hour, &minute, &second);
-	DEBUG_PRINTLN("Time: ");
-	DEBUG_PRINT(hour);
-	DEBUG_PRINT(":");
-	DEBUG_PRINT(minute);
-
-	delay(5000);
-	//buzzer.play_melody(1);
-}
-
 // once the button on the display is pressed it will be erogated a single food dose
 void Manage_Class::manual_erogation()
 {
-	DEBUG_PRINTLN("Manual Erogation");
-	feed.feed(160);
+	uint16_t erogation_value = 160;
+
+	DEBUG_PRINT("Manual Erogation: ");
+	DEBUG_PRINTLN(erogation_value);
+	feed.feed(erogation_value);
 }

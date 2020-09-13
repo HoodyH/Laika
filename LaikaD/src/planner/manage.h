@@ -95,30 +95,31 @@ public:
 	uint16_t gr_today_food_provided;
 
 	byte real_timetable[8];
+
+	// the value for each meal by the foot table
 	uint16_t original_gr_meal[4];
+
+	// if there weight process exceex in the drop
+	// here the  amount given will be adjusted
 	uint16_t adj_gr_meal[4];
 
-	byte index_of_this_meal = 0; //da resettare ogni giorno
+	// the index of the current meal
+	// must be resetted every day
+	byte index_of_this_meal = 0;
 
-	bool done_meal[4] = {false, false, false, false}; //da resettare ogni giorno
+	// save each time the food erogation is done
+	// must be resetted every day
+	bool done_meal[4] = {false, false, false, false};
 
-	//variabili di controllo
-	bool status_start_cicle = false;
-
-	//feed
-	bool setup_drop_and_weigh = true;
-	bool status_drop_and_weigh = true;
-
-	bool status_unload_sequence = false;
-
-	bool status_end_cicle = false;
-
-	//error
+	//errors
 	bool error_occur_in_feed = false;
 
-	//variabili deep cicle
+	// to remove (SD vincle)
 	int16_t currently_weight = 0;
 	int16_t total_currently_weight = 0;
+	bool status_start_cicle = false;
+	bool status_unload_sequence = false;
+	bool status_end_cicle = false;
 
 	//funzioni pubbliche
 	void setup();
@@ -126,8 +127,6 @@ public:
 	void main_function();
 	void manual_erogation();
 	void firstStart();
-
-	void test();
 };
 extern Manage_Class manage;
 
