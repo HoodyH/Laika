@@ -6,6 +6,7 @@
 #include "../sd/cardrw.h"
 #include "../utility/errors.h"
 #include "../utility/buzzer.h"
+#include "../utility/debug.h"
 #include "../lcd/display.h"
 
 #include "manage.h"
@@ -32,7 +33,6 @@ void Manage_Class::setup_all()
 	//card_rw.load_cycle_data();
 	//card_rw.load_daily_data();
 
-	pinMode(PS_ON, OUTPUT);
 	pinMode(LED_BOARD_PIN, OUTPUT);
 }
 
@@ -243,13 +243,12 @@ bool Manage_Class::food_left_in_tank()
 void Manage_Class::main_function()
 {
 
-	//se è vero il calcolo giornaliero dei valori e ancora da eseguire
-
+	//get gate time from the rtc module
 	data_time.get_data_time(&year, &month, &day, &hour, &minute, &second);
 
+	// calculare daily values once per day and store them into the sd
 	if (daily_ceck_to_do)
-	{ //se è vero il calcolo giornaliero dei valori e ancora da eseguire
-
+	{
 		if (uptime_days > uptime_higher)
 			uptime_higher = uptime_days;
 
@@ -266,32 +265,46 @@ void Manage_Class::main_function()
 	if (!today_all_done && !error_occur_in_feed)
 	{ //se c'è un errore in erogazione viene bloccato il ciclo di erogazione
 
-		if (its_the_moment() && food_left_in_tank() || true) //DEBUG
+		if (its_the_moment() && food_left_in_tank())
 		{
 			//controlla se è l'ora giusta e quale pasto si deve erogare
 			// aggiorna l'indice index_of_this_meal
 			// update the food left in the box
 
-			Serial.println(index_of_this_meal); //DEBUG
+			DEBUG_PRINT("index_of_this_meal: ");
+			DEBUG_PRINTLN(index_of_this_meal);
+
+			DEBUG_PRINTLN("Start Erogation!");
+
 			done_meal[index_of_this_meal] = feed.feed(adj_gr_meal[index_of_this_meal]);
 
-			Serial.println(total_currently_weight); //DEBUG
+			DEBUG_PRINTLN("Erogation Done!");
+			DEBUG_PRINT("Erogated weight in g: ");
+			DEBUG_PRINTLN(total_currently_weight);
 
+			// if the meal has been correctly released
 			if (done_meal[index_of_this_meal])
-			{ //se il pasto è stato erogato correttamente
-
+			{
 				if (index_of_this_meal < n_of_meals)
-				{ //calcolo adj_gr_meal del prossimo pasto
+				{
 					adj_gr_meal[index_of_this_meal + 1] = original_gr_meal[index_of_this_meal + 1] - (total_currently_weight - adj_gr_meal[index_of_this_meal]);
 					index_of_this_meal++;
+					DEBUG_PRINT("Next meal weight: ");
+					DEBUG_PRINTLN(adj_gr_meal[index_of_this_meal + 1]);
 				}
 				else
+				{
 					today_all_done = true;
+					DEBUG_PRINTLN("All done for today");
+				}
 
 				adj_gr_meal[index_of_this_meal] = total_currently_weight;
 				tank_food_left -= total_currently_weight;
 				total_currently_weight = 0;
 				currently_weight = 0;
+
+				DEBUG_PRINT("Food left in the tank: ");
+				DEBUG_PRINTLN(tank_food_left);
 			}
 
 			card_rw.save_cycle_data();
@@ -307,17 +320,21 @@ void Manage_Class::main_function()
 
 	//all'inizio della giornata successiva
 	if (!reset_done && reset_to_do())
+	{
+		DEBUG_PRINTLN("Daily Reset");
 		reset_day();
+	}
 }
 
 void Manage_Class::test()
 {
 
 	data_time.get_data_time(&year, &month, &day, &hour, &minute, &second);
-	Serial.println(minute);
-	Serial.println(hour);
-	Serial.println("time");
-	feed.ceck_trapdoor_closed();
+	DEBUG_PRINTLN("Time: ");
+	DEBUG_PRINT(hour);
+	DEBUG_PRINT(":");
+	DEBUG_PRINT(minute);
+
 	delay(5000);
 	//buzzer.play_melody(1);
 }

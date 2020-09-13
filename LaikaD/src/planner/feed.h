@@ -8,7 +8,6 @@ class Feed_Class
 private:
 	//tempi per funzioni cicliche
 	long last_millis_load_cell_time_ceck = 0;
-	long last_millis_ceck_trapdoor_closed = 0;
 	//tempi per il timeout
 	long start_millis_feed_timeout;
 	long start_millis_weighing_timeout;
@@ -22,7 +21,7 @@ private:
 public:
 	void setup();
 	bool drop_and_weigh(int16_t meal_qt_gr);
-	bool ceck_trapdoor_closed();
+	bool close_trapdoor();
 	bool unload_food();
 
 	bool feed(int16_t meal_qt_gr);

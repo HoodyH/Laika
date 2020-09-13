@@ -6,7 +6,6 @@
 
 void Buzzer_Class::setup()
 {
-
 	pinMode(BEEPER_PIN, OUTPUT);
 }
 
@@ -36,7 +35,7 @@ void Buzzer_Class::play_melody(uint16_t select)
 	switch (select)
 	{
 
-	case FOOD_EROGATION_START_MELODY_SELCT:
+	case FOOD_EROGATION_START_MELODY_SELECT:
 		for (int this_note = 0; this_note < N_NOTE_FOOD_EROGATION_START_MELODY; this_note++)
 		{
 			int time = 1000 / DURATIONS_FOOD_EROGATION_START_MELODY[this_note];
@@ -44,7 +43,7 @@ void Buzzer_Class::play_melody(uint16_t select)
 		}
 		break;
 
-	case FOOD_EROGATION_END_MELODY_SELCT:
+	case FOOD_EROGATION_END_MELODY_SELECT:
 		for (int this_note = 0; this_note < N_NOTE_FOOD_EROGATION_END_MELODY; this_note++)
 		{
 			int time = 1000 / DURATIONS_FOOD_EROGATION_END_MELODY[this_note];
@@ -52,7 +51,7 @@ void Buzzer_Class::play_melody(uint16_t select)
 		}
 		break;
 
-	case CRITICAL_ERROR_MELODY_SELCT:
+	case CRITICAL_ERROR_MELODY_SELECT:
 		for (int this_note = 0; this_note < N_NOTE_CRITICAL_ERROR_MELODY; this_note++)
 		{
 			int time = 1000 / DURATION_CRITICAL_ERROR_MELODY[this_note];
@@ -60,7 +59,7 @@ void Buzzer_Class::play_melody(uint16_t select)
 		}
 		break;
 
-	case FATAL_ERROR_MELODY_SELCT:
+	case FATAL_ERROR_MELODY_SELECT:
 		for (int this_note = 0; this_note < N_NOTE_FATAL_ERROR_MELODY; this_note++)
 		{
 			int time = 1000 / DURATION_FATAL_ERROR_MELODY[this_note];

@@ -3,6 +3,7 @@
 #include "../pins.h"
 #include "../config.h"
 #include "../utility/errors.h"
+#include "../utility/debug.h"
 #include "../planner/manage.h"
 #include "../dropper/motors.h"
 #include "../dropper/loadcell.h"
@@ -18,14 +19,22 @@ void Feed_Class::setup()
 {
 	motors.setup();
 
+	// set the power suppy
+	pinMode(PS_ON, OUTPUT);
+
 	pinMode(SWITCH_DOOR_DX_PIN, INPUT_PULLUP);
 	pinMode(SWITCH_DOOR_SX_PIN, INPUT_PULLUP);
+
+	unload_food(); // it will not power up the power supply
 }
 
 // drop the food from the container in to the weighing box
 // when the weighing reach the target meal_qt_gr stop
 bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 {
+	DEBUG_PRINT("Drop and weigh: ");
+	DEBUG_PRINTLN(meal_qt_gr);
+
 	// prepare the system
 	digitalWrite(MOTOR_MAIN_ENABLE_PIN, LOW); //accende il driver del motore
 	load_cell.power_up();					  //accende il chip della cella di carico
@@ -119,44 +128,39 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 
 // check if the trapdoor is closed
 // if not close it, check time out
-bool Feed_Class::ceck_trapdoor_closed()
+bool Feed_Class::close_trapdoor()
 {
+	DEBUG_PRINTLN("Close trapdore");
 
-	motors.servo_attach(); // enable servo motors
+	motors.servo_attach();											   // enable servo motors
+	motors.servo_move(SERVO_MOTOR_MIN_ANGLE, SERVO_MOTOR_CLOSE_SPEED); // close the trapdoor
+	motors.servo_detach();											   // disable servo motors
 
-	// Close the trapdoor
-	motors.servo_move(SERVO_MOTOR_MIN_ANGLE, SERVO_MOTOR_CLOSE_SPEED);
-
-	if ((current_millis - last_millis_ceck_trapdoor_closed) > TIME_TO_INITIAL_CLOSE_TRAPDOOR)
+	// check if the trapdoor is closed, if not throw an error
+	// and try to fix the problem reopening and closing the trapdoor TO DO
+	if (digitalRead(SWITCH_DOOR_DX_PIN) == SWITCH_DOOR_OPEN || digitalRead(SWITCH_DOOR_SX_PIN) == SWITCH_DOOR_OPEN)
 	{
-		last_millis_ceck_trapdoor_closed = current_millis;
-
-		if (digitalRead(SWITCH_DOOR_DX_PIN) == SWITCH_DOOR_OPEN || digitalRead(SWITCH_DOOR_SX_PIN) == SWITCH_DOOR_OPEN)
-			return error.system_status(ERROR_0303);
-		else
-		{
-			motors.servo_detach(); // disable servo motors
-			return true;
-		}
+		return error.system_status(ERROR_0303);
 	}
 	else
-		return false;
+		return true;
 }
 
 bool Feed_Class::unload_food()
 {
-
+	DEBUG_PRINTLN("Unload Food!");
 	motors.servo_attach();
+	motors.start_vibration();
 
 	// open the trapdoor
 	// servo_move function has a delay that let make funcion weith the motor to move
+	DEBUG_PRINTLN("Open trapdoor");
 	for (int16_t pos = SERVO_MOTOR_MIN_ANGLE; pos < SERVO_MOTOR_MAX_ANGLE; pos++)
 	{
 		if (pos > SERVO_MOTOR_IN_GRAD_SLOW_SPEED && pos < SERVO_MOTOR_OUT_GRAD_SLOW_SPEED)
 			servo_speed = SERVO_MOTOR_SLOW_OPEN_SPEED;
 		else
-			motors.start_vibration();
-		servo_speed = SERVO_MOTOR_FAST_OPEN_SPEED;
+			servo_speed = SERVO_MOTOR_FAST_OPEN_SPEED;
 
 		// move at differents speeds
 		motors.servo_move(pos, servo_speed);
@@ -169,6 +173,7 @@ bool Feed_Class::unload_food()
 		return error.system_status(CRITICAL_ERROR_8301);
 	}
 	//close trapdoor
+	DEBUG_PRINTLN("Close trapdoor");
 	for (int16_t pos = SERVO_MOTOR_MAX_ANGLE; pos > SERVO_MOTOR_MIN_ANGLE; pos--)
 		motors.servo_move(pos, SERVO_MOTOR_CLOSE_SPEED);
 
@@ -181,6 +186,7 @@ bool Feed_Class::unload_food()
 	}
 	else
 	{
+		DEBUG_PRINTLN("Food Unloaded");
 		//stop servos and return success
 		motors.servo_detach();
 		motors.stop_vibration();
@@ -206,7 +212,7 @@ bool Feed_Class::feed(int16_t meal_qt_gr)
 		if ((current_millis - start_millis_feed_timeout) > FEED_TIMEOUT)
 			return error.system_status(ERROR_1500);
 
-		if (ceck_trapdoor_closed())
+		if (close_trapdoor())
 		{
 			// maniplulable var with the fraction of food that will be dropped in this cicle
 			int16_t future_meal_qt_gr = meal_qt_gr;
@@ -217,6 +223,8 @@ bool Feed_Class::feed(int16_t meal_qt_gr)
 
 			// drop and weighing
 			// save error errors
+			DEBUG_PRINT("Future meal to be weighted: ");
+			DEBUG_PRINTLN(future_meal_qt_gr);
 			bool drop_and_weigh_error = drop_and_weigh(future_meal_qt_gr);
 
 			// update the variable with the amount weighted on this cicle
@@ -231,8 +239,8 @@ bool Feed_Class::feed(int16_t meal_qt_gr)
 				return false;
 			}
 
-			Serial.print("Crocchette Pesate: ");		   //DEBUG
-			Serial.println(manage.total_currently_weight); //DEBUG
+			DEBUG_PRINT("Food total weight: ");
+			DEBUG_PRINTLN(manage.total_currently_weight);
 
 			// error during drop_and_weigh, exit the cicle and do not iterate again.
 			// unload, save weighed value and exit

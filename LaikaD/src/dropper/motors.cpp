@@ -3,6 +3,7 @@
 #include "../pins.h"
 #include "../config.h"
 #include "../utility/errors.h"
+#include "../utility/debug.h"
 
 #include "motors.h"
 
@@ -161,10 +162,12 @@ void Motors_Class::servo_detach()
 
 void Motors_Class::start_vibration()
 {
+	DEBUG_PRINTLN("Start vibration system");
 	analogWrite(MOTOR_VIB_DX_PIN, 127); // set the PVM to 50%
 }
 
 void Motors_Class::stop_vibration()
 {
+	DEBUG_PRINTLN("Stop vibration system");
 	analogWrite(MOTOR_VIB_DX_PIN, 0); // set the PWM to 0%
 }
