@@ -2,12 +2,59 @@
 #include "arduino.h"
 #include "../pins.h"
 #include "../config.h"
+#include "../utility/debug.h"
+#include "../planner/manage.h"
 
 #include "display.h"
 #include "main_screen_bitmap.h"
 #include "custom_bootscreen.h"
 
 U8GLIB_ST7920_128X64_1X u8g(LCD_ENABLE_PIN, LCD_RW_PIN, LCD_RS_PIN); // SPI Com: e=18,rw=17,rs=16
+
+// values to update the encoder on the display
+int counter = 0;
+int actual_state;
+int last_state;
+float rad2grad = 57.295779513;
+
+void update_display_encoder()
+{
+
+	actual_state = digitalRead(BTN_EN1_PIN); // Reads the "current" state of the outputA
+											 // If the previous and the current state of the outputA are different, that means a Pulse has occured
+	if (actual_state != last_state)
+	{
+		// If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
+		if (digitalRead(BTN_EN2_PIN) != actual_state)
+		{
+			if (counter > 23)
+				counter = 0;
+			else
+				counter++;
+		}
+
+		else
+		{
+			if (counter < 0)
+				counter = 23;
+			else
+				counter--;
+		}
+		DEBUG_PRINT("Position: ");
+		DEBUG_PRINTLN(counter);
+	}
+
+	last_state = actual_state; // Updates the previous state of the outputA with the current state
+}
+
+void update_display_button_state()
+{
+	if (digitalRead(35) == LOW)
+	{
+		DEBUG_PRINTLN("Button Pressed");
+		manage.manual_erogation(); // not good
+	}
+}
 
 bool Display_Class::setup()
 {
@@ -80,50 +127,15 @@ void Display_Class::main_screen()
 	//byte kg_left = manage.tank_food_left / 1000;
 	//map()
 	//u8g.drawBox(105, 7, 20, 50);
-
-	//if
 }
 
-void Display_Class::update_encoder()
+// main function that will periodically update all the ui
+
+void Display_Class::update_ui()
 {
-
-	actual_state = digitalRead(BTN_EN1_PIN); // Reads the "current" state of the outputA
-											 // If the previous and the current state of the outputA are different, that means a Pulse has occured
-	if (actual_state != last_state)
-	{
-		// If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
-		if (digitalRead(BTN_EN2_PIN) != actual_state)
-		{
-			if (counter > 23)
-				counter = 0;
-			else
-				counter++;
-		}
-
-		else
-		{
-			if (counter < 0)
-				counter = 23;
-			else
-				counter--;
-		}
-		//Serial.print("Position: ");
-		//Serial.println(counter);
-	}
-
-	if (digitalRead(35) == LOW)
-		Serial.println("OK");
-
-	last_state = actual_state; // Updates the previous state of the outputA with the current state
-}
-
-void Display_Class::main_loop()
-{
-
-	update_encoder();
-
-	//Serial.println(digitalRead(BTN_ENC_PIN));
 	u8g.firstPage();
+	update_display_encoder();
+	update_display_button_state();
 
 	do
 	{

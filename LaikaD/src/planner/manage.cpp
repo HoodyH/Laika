@@ -7,26 +7,23 @@
 #include "../utility/errors.h"
 #include "../utility/buzzer.h"
 #include "../utility/debug.h"
-#include "../lcd/display.h"
 
 #include "manage.h"
 #include "feed.h"
 
 Data_Time_Class data_time;
-//Display_Class display;
 Card_rw_Class card_rw;
 Error_Class error;
 Buzzer_Class buzzer;
 Feed_Class feed;
 
-void Manage_Class::setup_all()
+void Manage_Class::setup()
 {
 	// do the setup of all of the modules
 	// also load all the data form the datastore
 	data_time.rtc_setup();
 	card_rw.setup();
 	feed.setup();
-	//display.setup();
 	buzzer.setup();
 
 	//card_rw.load_base_data();
@@ -265,7 +262,7 @@ void Manage_Class::main_function()
 	if (!today_all_done && !error_occur_in_feed)
 	{ //se c'è un errore in erogazione viene bloccato il ciclo di erogazione
 
-		if (its_the_moment() && food_left_in_tank())
+		if (its_the_moment() && food_left_in_tank() && SCHEDULED_AUTO_EROGATION_ENABLED)
 		{
 			//controlla se è l'ora giusta e quale pasto si deve erogare
 			// aggiorna l'indice index_of_this_meal
@@ -337,4 +334,11 @@ void Manage_Class::test()
 
 	delay(5000);
 	//buzzer.play_melody(1);
+}
+
+// once the button on the display is pressed it will be erogated a single food dose
+void Manage_Class::manual_erogation()
+{
+	DEBUG_PRINTLN("Manual Erogation");
+	feed.feed(160);
 }

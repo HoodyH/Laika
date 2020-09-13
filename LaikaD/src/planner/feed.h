@@ -6,23 +6,24 @@
 class Feed_Class
 {
 private:
-	//tempi per funzioni cicliche
-	long last_millis_load_cell_time_ceck = 0;
-	//tempi per il timeout
+	// time for the timeout
 	long start_millis_feed_timeout;
 	long start_millis_weighing_timeout;
 
-	int16_t load_cell_reading;
+	// the current weight in the single weight loop
+	int16_t currently_weight;
 
-	int16_t main_motor_rotation_per_min;
-
-	int16_t servo_speed;
+	// internal function to do one drop and weight cicle
+	bool drop_and_weigh(int16_t meal_qt_gr);
 
 public:
+	// the weight erogated to the bowl in all the loops
+	// read this value after drop_and_weigh function execution
+	int16_t total_currently_weight;
+
 	void setup();
-	bool drop_and_weigh(int16_t meal_qt_gr);
 	bool close_trapdoor();
-	bool unload_food();
+	bool open_trapdoor();
 
 	bool feed(int16_t meal_qt_gr);
 };

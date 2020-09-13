@@ -4,7 +4,6 @@
 #include "../config.h"
 #include "../utility/errors.h"
 #include "../utility/debug.h"
-#include "../planner/manage.h"
 #include "../dropper/motors.h"
 #include "../dropper/loadcell.h"
 
@@ -25,7 +24,7 @@ void Feed_Class::setup()
 	pinMode(SWITCH_DOOR_DX_PIN, INPUT_PULLUP);
 	pinMode(SWITCH_DOOR_SX_PIN, INPUT_PULLUP);
 
-	unload_food(); // it will not power up the power supply
+	open_trapdoor(); // it will not power up the power supply
 }
 
 // drop the food from the container in to the weighing box
@@ -35,15 +34,24 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 	DEBUG_PRINT("Drop and weigh: ");
 	DEBUG_PRINTLN(meal_qt_gr);
 
+	// define local vars
+	int16_t load_cell_reading;
+	int16_t main_motor_rotation_per_min;
+	unsigned long last_millis_load_cell_time_ceck = 0;
+
 	// prepare the system
-	digitalWrite(MOTOR_MAIN_ENABLE_PIN, LOW); //accende il driver del motore
-	load_cell.power_up();					  //accende il chip della cella di carico
+	digitalWrite(MOTOR_MAIN_ENABLE_PIN, LOW); // power up motor driver
+	load_cell.power_up();					  // power up the load cell
+	load_cell.setup();						  // ritara la cella di carico prima di ogni pesata
 
-	load_cell.setup();								  //ritara la cella di carico prima di ogni pesata
-	manage.currently_weight = load_cell.get_weight(); //prima pesata che dovrebbe essere 0, serve per riscrivere la variabile dalla pesata precedente
-	start_millis_weighing_timeout = millis();		  //inizializza con il tempo di start ciclo
+	// first weight to set the tare, and to reset currently weight value from the previous loop
+	currently_weight = load_cell.get_weight();
 
-	bool is_success = true; // this will go false if there are problems
+	// set the weighing start time
+	start_millis_weighing_timeout = millis();
+
+	// this will go false if there are problems
+	bool is_success = true;
 
 	// drop and weight
 	while (true)
@@ -57,7 +65,7 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 		// check before do anything
 		if ((current_millis - start_millis_weighing_timeout) > WEIGHING_TIMEOUT)
 		{
-			if (manage.currently_weight == 0)
+			if (currently_weight == 0)
 				error.system_status(FATAL_ERROR_9103);
 
 			error.system_status(ERROR_1501);
@@ -77,7 +85,7 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 				error.system_status(ERROR_0201); // soft error, spings are not strong enough
 
 				// during the weigh procedure the fool leak out
-				if (load_cell_reading < manage.currently_weight)
+				if (load_cell_reading < currently_weight)
 				{
 					error.system_status(CRITICAL_ERROR_8202);
 					is_success = false;
@@ -85,15 +93,15 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 				}
 			}
 			// update the current weighted value
-			manage.currently_weight = load_cell_reading;
+			currently_weight = load_cell_reading;
 		} // end check the weight in the weighing box
 
 		// calculate the motor speed
 		// if the weight has reached a fixed value
 		// start decrese the motor speed
-		if (manage.currently_weight <= (meal_qt_gr - WEIGHT_FOR_FINAL_SPEED))
+		if (currently_weight <= (meal_qt_gr - WEIGHT_FOR_FINAL_SPEED))
 		{
-			int16_t qt_gr_left = meal_qt_gr - manage.currently_weight;
+			int16_t qt_gr_left = meal_qt_gr - currently_weight;
 			main_motor_rotation_per_min = map(qt_gr_left, WEIGHT_FOR_FINAL_SPEED, meal_qt_gr, MAIN_MOTOR_MIN_ROTATION_PER_MIN, MAIN_MOTOR_MAX_ROTATION_PER_MIN);
 		}
 		else
@@ -109,9 +117,9 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 
 		// check if the weight has been reached
 		// if yes stop the motor and leave the cicle
-		if (manage.currently_weight >= meal_qt_gr)
+		if (currently_weight >= meal_qt_gr)
 		{
-			manage.currently_weight = load_cell.get_weight(); //pesa un ultima volta dopo che il motore si � fermato
+			currently_weight = load_cell.get_weight(); // check the weight one more time at the end
 			break;
 		}
 
@@ -120,6 +128,7 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 	digitalWrite(MOTOR_MAIN_ENABLE_PIN, HIGH); //shutdown motor driver
 	load_cell.power_down();					   //shutdown load cell chip
 
+	// if no error has occured, return success else no
 	if (is_success)
 		return true;
 	else
@@ -146,7 +155,7 @@ bool Feed_Class::close_trapdoor()
 		return true;
 }
 
-bool Feed_Class::unload_food()
+bool Feed_Class::open_trapdoor()
 {
 	DEBUG_PRINTLN("Unload Food!");
 	motors.servo_attach();
@@ -155,6 +164,9 @@ bool Feed_Class::unload_food()
 	// open the trapdoor
 	// servo_move function has a delay that let make funcion weith the motor to move
 	DEBUG_PRINTLN("Open trapdoor");
+
+	int16_t servo_speed;
+
 	for (int16_t pos = SERVO_MOTOR_MIN_ANGLE; pos < SERVO_MOTOR_MAX_ANGLE; pos++)
 	{
 		if (pos > SERVO_MOTOR_IN_GRAD_SLOW_SPEED && pos < SERVO_MOTOR_OUT_GRAD_SLOW_SPEED)
@@ -166,28 +178,28 @@ bool Feed_Class::unload_food()
 		motors.servo_move(pos, servo_speed);
 	}
 
-	//check if the trapdoor is open
+	// check if the trapdoor is open
 	if (digitalRead(SWITCH_DOOR_DX_PIN) == SWITCH_DOOR_CLOSE || digitalRead(SWITCH_DOOR_SX_PIN) == SWITCH_DOOR_CLOSE)
 	{
 		motors.servo_detach();
 		return error.system_status(CRITICAL_ERROR_8301);
 	}
-	//close trapdoor
+	// close trapdoor
 	DEBUG_PRINTLN("Close trapdoor");
 	for (int16_t pos = SERVO_MOTOR_MAX_ANGLE; pos > SERVO_MOTOR_MIN_ANGLE; pos--)
 		motors.servo_move(pos, SERVO_MOTOR_CLOSE_SPEED);
 
-	//check if the trapdoor has closed
+	// check if the trapdoor has closed
 	if (digitalRead(SWITCH_DOOR_DX_PIN) == SWITCH_DOOR_OPEN || digitalRead(SWITCH_DOOR_SX_PIN) == SWITCH_DOOR_OPEN)
 	{
 		error.system_status(ERROR_0302);
 		// loop the unload food if the trapdoor failed to close
-		unload_food();
+		open_trapdoor();
 	}
 	else
 	{
 		DEBUG_PRINTLN("Food Unloaded");
-		//stop servos and return success
+		// stop servos and return success
 		motors.servo_detach();
 		motors.stop_vibration();
 		return true;
@@ -197,13 +209,9 @@ bool Feed_Class::unload_food()
 // public function to drop a certain amount of food into the bowl
 bool Feed_Class::feed(int16_t meal_qt_gr)
 {
-	start_millis_feed_timeout = millis(); //inizializza con il tempo di start ciclo
-	digitalWrite(PS_ON, HIGH);			  //power up the power supply
+	start_millis_feed_timeout = millis(); // inizialize on the start of the cicle
+	digitalWrite(PS_ON, HIGH);			  // power up the power supply
 
-	// nel caso in cui salti la corrente o il ciclo fallisca, continua a pesare da dove era rimasto
-	meal_qt_gr -= (manage.total_currently_weight + manage.currently_weight);
-
-	manage.status_drop_and_weigh = true;
 	do
 	{
 		current_millis = millis();
@@ -228,31 +236,31 @@ bool Feed_Class::feed(int16_t meal_qt_gr)
 			bool drop_and_weigh_error = drop_and_weigh(future_meal_qt_gr);
 
 			// update the variable with the amount weighted on this cicle
-			manage.total_currently_weight += manage.currently_weight;
-			meal_qt_gr -= manage.currently_weight;
+			total_currently_weight += currently_weight;
+			meal_qt_gr -= currently_weight;
 
 			// unload the food from the WEIGHING COLLECTOR into the bowl
 			// check for errors
-			if (!unload_food())
+			if (!open_trapdoor())
 			{
-				digitalWrite(PS_ON, LOW); //shutdown power supply
+				digitalWrite(PS_ON, LOW); // shutdown power supply
 				return false;
 			}
 
 			DEBUG_PRINT("Food total weight: ");
-			DEBUG_PRINTLN(manage.total_currently_weight);
+			DEBUG_PRINTLN(total_currently_weight);
 
 			// error during drop_and_weigh, exit the cicle and do not iterate again.
 			// unload, save weighed value and exit
 			if (!drop_and_weigh_error)
 			{
-				digitalWrite(PS_ON, LOW); //shutdown power supply
+				digitalWrite(PS_ON, LOW); // shutdown power supply
 				return false;
 			}
 		}
 
 	} while (meal_qt_gr > 0);
 
-	digitalWrite(PS_ON, LOW); //shutdown power supply
+	digitalWrite(PS_ON, LOW); // shutdown power supply
 	return true;
 }

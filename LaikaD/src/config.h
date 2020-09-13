@@ -65,4 +65,8 @@
 
 #define DEBUG_SERIAL_PRINT_ON true
 
+// disable automatic food erogation
+// only manual will be avaiable
+#define SCHEDULED_AUTO_EROGATION_ENABLED false
+
 #endif
