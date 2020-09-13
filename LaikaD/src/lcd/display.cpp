@@ -83,50 +83,18 @@ bool Display_Class::setup()
 
 void Display_Class::draw()
 {
-
 	u8g.setFont(u8g_font_fub11);
-	u8g.drawStr(0, 12, "Test Encoder");
-
-	u8g.setFont(u8g_font_fub20);
-
-	char buf[8];
-	sprintf(buf, "%d %d", digitalRead(BTN_ENC_PIN), (counter));
-	u8g.drawStr(10, 40, buf);
-
-	u8g.drawCircle(96, 34, 19);
-	u8g.drawCircle(96, 34, 20);
-
-	// Line
-	// enc 20 step = 360/20 = 18�
-	float ang = (((counter)*18) / rad2grad);
-	byte x = (96 + (sin(ang) * 19));
-	byte y = (34 - (cos(ang) * 19));
-	u8g.drawLine(96, 34, x, y);
+	u8g.drawStr(0, 12, "Laika");
 
 	// Signature
 	u8g.setFont(u8g_font_6x12);
-	u8g.drawStr(0, 63, "www.mauroalfieri.it");
-
-	u8g.drawFrame(98, 7, 20, 50);
+	u8g.drawStr(0, 63, "Simone Not");
 }
 
 void Display_Class::main_screen()
 {
-
-	u8g.drawXBM(0, 0, 128, 64, frame_display);
-	//u8g.setPrintPos(0, 0);
-	u8g_uint_t xy = 0;
-
-	u8g_uint_t h = 64;
-	u8g_uint_t l = 128;
-	//u8g.drawBitmapP(xy, xy, l, h, frame_display);
-
-	//u8g.drawFrame(105, 7, 20, 50);
-	//int h
-
-	//byte kg_left = manage.tank_food_left / 1000;
-	//map()
-	//u8g.drawBox(105, 7, 20, 50);
+	// u8g.drawXBM(0, 20, 10, 10, LOGO);
+	draw();
 }
 
 // main function that will periodically update all the ui
