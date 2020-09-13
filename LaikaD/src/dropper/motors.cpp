@@ -56,6 +56,9 @@ void Motors_Class::setup()
 
 	attachInterrupt(digitalPinToInterrupt(ENCODER_MAIN_ENA_PIN), update_encoder, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(ENCODER_MAIN_ENB_PIN), update_encoder, CHANGE);
+
+	// vibration system
+	pinMode(MOTOR_VIB_DX_PIN, OUTPUT);
 }
 
 bool Motors_Class::move_stepper(uint16_t rotation_per_min)
@@ -154,4 +157,14 @@ void Motors_Class::servo_detach()
 {
 	servo_door_dx.detach();
 	servo_door_sx.detach();
+}
+
+void Motors_Class::start_vibration()
+{
+	analogWrite(MOTOR_VIB_DX_PIN, 127); // set the PVM to 50%
+}
+
+void Motors_Class::stop_vibration()
+{
+	analogWrite(MOTOR_VIB_DX_PIN, 0); // set the PWM to 0%
 }

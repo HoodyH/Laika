@@ -33,7 +33,8 @@ Arduino mega interupt pin
 #define SWITCH_DOOR_SX_PIN 15 //Y+ ENDSTOP
 
 //VIBRATION SYSTEM--------------------------------------------------------------
-#define MOTOR_VIB_DX_PIN 8 //BIG MOSFET D8
+//BIG MOSFET D8 D9 D10 are on 8 9 10 arduino pins
+#define MOTOR_VIB_DX_PIN 10 //BIG MOSFET D10
 
 //FULL GRAPHIC SMART CONTROLLER-------------------------------------------------
 //display

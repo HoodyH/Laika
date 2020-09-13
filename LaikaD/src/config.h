@@ -30,7 +30,7 @@
 //quanto il motore pu� tornare in dietro se si blocca
 #define MAIN_MOTOR_STD_BACKWARDS_ROTATION 10 //steps
 //differenza massima tra encoder e steps contati per avviare il ritorno indietro
-#define MAX_DIF_ENCODER_STEPPER 3 //steps
+#define MAX_DIF_ENCODER_STEPPER 5 //steps
 //in gram, peso massimo che pu� contenere il WEIGHING_COLLECTOR oltre il quale bisogna dividere la pesata
 #define MAX_WEIGHT_IN_WEIGHING_COLLECTOR 125 //grams
 //peso sopra al peso massimo che permette di eseguire una nuova pesata.

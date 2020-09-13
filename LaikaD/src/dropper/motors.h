@@ -39,6 +39,11 @@ public:
 	bool move_stepper(uint16_t rotation_per_min);
 	void servo_move(int16_t grade, int8_t speed);
 
+	// vibration system controll
+	// vibrtate the erogation tube to let the food go out better
+	void start_vibration();
+	void stop_vibration();
+
 	void servo_attach();
 	void servo_detach();
 };
