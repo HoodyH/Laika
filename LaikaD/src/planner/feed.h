@@ -18,8 +18,6 @@ private:
 	int16_t main_motor_rotation_per_min;
 
 	int16_t servo_speed;
-	int16_t servo_dx_position;
-	int16_t servo_sx_position;
 
 public:
 	void setup();

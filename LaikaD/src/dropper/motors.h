@@ -37,7 +37,7 @@ public:
 	void setup();
 
 	bool move_stepper(uint16_t rotation_per_min);
-	void servo_move(int16_t grade, int8_t speed, int16_t *actual_dx_position, int16_t *actual_sx_position);
+	void servo_move(int16_t grade, int8_t speed);
 
 	void servo_attach();
 	void servo_detach();

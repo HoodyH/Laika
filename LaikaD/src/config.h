@@ -58,7 +58,7 @@
 
 //la somma di tutti i timeout deve essere inferiore o uguale a FEED_TIMEOUT
 //tempo complessivo per dare da mangiare
-#define FEED_TIMEOUT 80000     //milliseconds
+#define FEED_TIMEOUT 950000    //milliseconds
 #define WEIGHING_TIMEOUT 30000 //milliseconds
 //soglia sotto al quale parte l'avvertimento per il quasi esaurimento del cibo
 #define STATIC_WARNING_THRESHOLD_LOW_FOOD 5000 //grams

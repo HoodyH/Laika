@@ -131,7 +131,7 @@ bool Motors_Class::move_stepper(uint16_t rotation_per_min)
 	return true;
 }
 
-void Motors_Class::servo_move(int16_t grade, int8_t speed, int16_t *actual_dx_position, int16_t *actual_sx_position)
+void Motors_Class::servo_move(int16_t grade, int8_t speed)
 {
 	// move the servo into the given position
 	servo_delay = (1000 / speed);
