@@ -11,50 +11,83 @@
 
 U8GLIB_ST7920_128X64_1X u8g(LCD_ENABLE_PIN, LCD_RW_PIN, LCD_RS_PIN); // SPI Com: e=18,rw=17,rs=16
 
-// values to update the encoder on the display
-int counter = 0;
-int actual_state;
-int last_state;
-float rad2grad = 57.295779513;
+// the status of the system
+int8_t display_status_flag = S_READY;
 
-void update_display_encoder()
+// current text status
+// it will show
+char status_text[20];
+
+// the status of the system
+int16_t food_weight = 0;
+int16_t food_targhet = 0;
+
+// value to know when the system has done the init cycle
+bool is_ready = false;
+
+// do pre operations on the display
+void update()
 {
-
-	actual_state = digitalRead(BTN_EN1_PIN); // Reads the "current" state of the outputA
-											 // If the previous and the current state of the outputA are different, that means a Pulse has occured
-	if (actual_state != last_state)
+	switch (display_status_flag)
 	{
-		// If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
-		if (digitalRead(BTN_EN2_PIN) != actual_state)
-		{
-			if (counter > 23)
-				counter = 0;
-			else
-				counter++;
-		}
-
-		else
-		{
-			if (counter < 0)
-				counter = 23;
-			else
-				counter--;
-		}
-		DEBUG_PRINT("Position: ");
-		DEBUG_PRINTLN(counter);
+	case S_READY:
+		sprintf(status_text, "Ready");
+		break;
+	case S_EROGATION:
+		sprintf(status_text, "Erogated: %d/%d", food_targhet, food_weight);
+		break;
 	}
-
-	last_state = actual_state; // Updates the previous state of the outputA with the current state
 }
 
+// start food erogation once the button is pressed
 void update_display_button_state()
 {
-	if (digitalRead(35) == LOW)
+	if (digitalRead(BTN_ENC_PIN) == LOW)
 	{
 		DEBUG_PRINTLN("Button Pressed");
+		display_status_flag = S_EROGATION;
+		update();
+		u8g.sleepOff(); //power on the display
 		manage.manual_erogation(); // not good
+
+		display_status_flag = S_READY;
+		update();
 	}
 }
+
+
+void display_startup_screen()
+{
+	u8g.firstPage();
+	do {
+		u8g.setFont(u8g_font_fub11);
+		u8g.drawStr(5, 35, "Power Up");
+	} while (u8g.nextPage());
+}
+
+
+void display_main_screen()
+{
+	// u8g.drawXBM(0, 20, 10, 10, LOGO);
+	u8g.firstPage();
+	do {
+		u8g.setFont(u8g_font_fub11);
+		u8g.drawStr(0, 12, "Laika");
+		
+		// status data
+		u8g.setFont(u8g_font_6x12);
+		u8g.drawStr(0, 63, status_text);
+	} while (u8g.nextPage());
+}
+
+
+void display_food_val(int16_t targhet, int16_t weight){
+	food_weight = weight;
+	food_targhet = targhet;
+	update();
+	display_main_screen();
+}
+
 
 bool Display_Class::setup()
 {
@@ -79,35 +112,21 @@ bool Display_Class::setup()
 	pinMode(BTN_EN1_PIN, INPUT_PULLUP);
 	pinMode(BTN_EN2_PIN, INPUT_PULLUP);
 	pinMode(BTN_ENC_PIN, INPUT_PULLUP);
-}
 
-void Display_Class::draw()
-{
-	u8g.setFont(u8g_font_fub11);
-	u8g.drawStr(0, 12, "Laika");
-
-	// Signature
-	u8g.setFont(u8g_font_6x12);
-	u8g.drawStr(0, 63, "Simone Not");
-}
-
-void Display_Class::main_screen()
-{
-	// u8g.drawXBM(0, 20, 10, 10, LOGO);
-	draw();
+	display_startup_screen();
 }
 
 // main function that will periodically update all the ui
 
 void Display_Class::update_ui()
 {
-	u8g.firstPage();
-	update_display_encoder();
+	// on fist loop set the display ready
+	if (is_ready == false){
+		is_ready = true;
+		display_status_flag = S_READY;
+		update();
+	}
+
 	update_display_button_state();
-
-	do
-	{
-		main_screen();
-
-	} while (u8g.nextPage());
+	display_main_screen();
 }

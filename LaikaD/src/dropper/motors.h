@@ -37,6 +37,7 @@ public:
 	void setup();
 
 	bool move_stepper(uint16_t rotation_per_min);
+	void move_stepper_back();
 	void servo_move(int16_t grade, int8_t speed);
 
 	// vibration system controll

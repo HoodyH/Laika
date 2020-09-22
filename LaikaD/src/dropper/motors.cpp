@@ -135,6 +135,22 @@ bool Motors_Class::move_stepper(uint16_t rotation_per_min)
 	return true;
 }
 
+// move the stepper to a rest position
+void Motors_Class::move_stepper_back()
+{
+	digitalWrite(MOTOR_MAIN_DIR_PIN, LOW); // move backwards
+
+	microsec_half_step = ((60 * 1000000 / MAIN_MOTOR_MAX_ROTATION_PER_MIN) / (MAIN_MOTOR_STEP_PER_ROTATION * MAIN_MOTOR_MICROSTEP)) / 2;
+
+	for (int i = 0; i < MAIN_MOTOR_BACKWARDS_ON_END; i++)
+	{
+		digitalWrite(MOTOR_MAIN_STEP_PIN, HIGH);
+		delayMicroseconds(microsec_half_step);
+		digitalWrite(MOTOR_MAIN_STEP_PIN, LOW);
+		delayMicroseconds(microsec_half_step);
+	}
+}
+
 void Motors_Class::servo_move(int16_t grade, int8_t speed)
 {
 	// move the servo into the given position

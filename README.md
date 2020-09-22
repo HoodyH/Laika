@@ -7,10 +7,10 @@ Basically it's a dog feeder on a much larger scale.
 
 Install this libraries from the library handler in the arduino IDE
 
-- RTClib
-- ArduinoJson (v5.12.0)
-- U8glib
-- HX711 (HX711 Arduino Library v0.7.4)
+- RTClib (by adafruit v 1.11.2)
+- ArduinoJson (by Benoit Blanchon v5.12.0)
+- U8glib (by oliver v1.19.1)
+- HX711 Arduino Library (by bogdan necula v0.7.4)
 
 ### TODO
 

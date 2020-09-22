@@ -7,8 +7,8 @@ Display_Class display;
 void setup()
 {
 	Serial.begin(9800);
+  	display.setup();
 	manage.setup();
-	display.setup();
 }
 
 void loop()

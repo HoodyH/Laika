@@ -6,6 +6,7 @@
 #include "../utility/debug.h"
 #include "../dropper/motors.h"
 #include "../dropper/loadcell.h"
+#include "../lcd/display.h"
 
 #include "feed.h"
 
@@ -92,8 +93,9 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 					break;
 				}
 			}
-			// update the current weighted value
+			// update the current weighted value and display it
 			currently_weight = load_cell_reading;
+			display_food_val(meal_qt_gr, currently_weight);
 		} // end check the weight in the weighing box
 
 		// calculate the motor speed
@@ -120,6 +122,7 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 		if (currently_weight >= meal_qt_gr)
 		{
 			currently_weight = load_cell.get_weight(); // check the weight one more time at the end
+			motors.move_stepper_back(); // move the motor to the rest position
 			break;
 		}
 
