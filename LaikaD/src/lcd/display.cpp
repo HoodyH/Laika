@@ -21,6 +21,10 @@ char status_text[20];
 // the status of the system
 int16_t food_weight = 0;
 int16_t food_targhet = 0;
+char food_display[28];
+
+// food of the day values
+
 
 // value to know when the system has done the init cycle
 bool is_ready = false;
@@ -44,14 +48,13 @@ void update_display_button_state()
 {
 	if (digitalRead(BTN_ENC_PIN) == LOW)
 	{
+		u8g.sleepOff(); //power on the display
+		
 		DEBUG_PRINTLN("Button Pressed");
 		display_status_flag = S_EROGATION;
 		update();
-		u8g.sleepOff(); //power on the display
-		manage.manual_erogation(); // not good
 
-		display_status_flag = S_READY;
-		update();
+		manage.manual_erogation();
 	}
 }
 
@@ -73,6 +76,12 @@ void display_main_screen()
 	do {
 		u8g.setFont(u8g_font_fub11);
 		u8g.drawStr(0, 12, "Laika");
+
+		// status data
+		u8g.setFont(u8g_font_6x12);
+		u8g.drawStr(0, 40, "Food for today:");
+		u8g.setFont(u8g_font_6x12);
+		u8g.drawStr(0, 50, food_display);
 		
 		// status data
 		u8g.setFont(u8g_font_6x12);
@@ -81,9 +90,35 @@ void display_main_screen()
 }
 
 
+void display_today_food(uint16_t *value, bool *is_done){
+
+	food_display[0] = '\0';
+	char single_meal[6];
+
+	for (int i = 0; i < 4; i++)
+	{
+		if (is_done[i] == true)
+			sprintf(single_meal, "!%d \0", value[i]);
+		else
+			sprintf(single_meal, "%d \0", value[i]);	
+		
+		strcat(food_display, single_meal);
+	}
+	
+	update();
+	display_main_screen();
+}
+
 void display_food_val(int16_t targhet, int16_t weight){
 	food_weight = weight;
 	food_targhet = targhet;
+	update();
+	display_main_screen();
+}
+
+void display_operation_completed()
+{
+	display_status_flag = S_READY;
 	update();
 	display_main_screen();
 }

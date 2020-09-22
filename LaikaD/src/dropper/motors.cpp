@@ -142,7 +142,7 @@ void Motors_Class::move_stepper_back()
 
 	microsec_half_step = ((60 * 1000000 / MAIN_MOTOR_MAX_ROTATION_PER_MIN) / (MAIN_MOTOR_STEP_PER_ROTATION * MAIN_MOTOR_MICROSTEP)) / 2;
 
-	for (int i = 0; i < MAIN_MOTOR_BACKWARDS_ON_END; i++)
+	for (int i = 0; i < (MAIN_MOTOR_BACKWARDS_ON_END * MAIN_MOTOR_MICROSTEP); i++)
 	{
 		digitalWrite(MOTOR_MAIN_STEP_PIN, HIGH);
 		delayMicroseconds(microsec_half_step);

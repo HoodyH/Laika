@@ -7,6 +7,7 @@
 #include "../utility/errors.h"
 #include "../utility/buzzer.h"
 #include "../utility/debug.h"
+#include "../lcd/display.h"
 
 #include "manage.h"
 #include "feed.h"
@@ -31,6 +32,25 @@ void Manage_Class::setup()
 	//card_rw.load_daily_data();
 
 	pinMode(LED_BOARD_PIN, OUTPUT);
+}
+
+// build the food data that have to be displayed
+void Manage_Class::display_current_food_schedule()
+{
+	uint16_t current_food_array[4];
+	int8_t i;
+
+	for (i = 0; i < 4; i++)
+	{
+		current_food_array[i] = original_gr_meal[i];
+	}
+
+	for (i = 0; i <= index_of_this_meal; i++)
+	{
+		current_food_array[i] = adj_gr_meal[i];
+	}
+
+	display_today_food(current_food_array, done_meal);
 }
 
 void Manage_Class::past_life()
@@ -256,17 +276,20 @@ void Manage_Class::main_function()
 		adj_gr_meal[0] = original_gr_meal[0];
 
 		daily_ceck_to_do = false; //controllo eseguito
+		display_current_food_schedule();
 		card_rw.save_daily_data();
 	}
 
 	if (!today_all_done && !error_occur_in_feed)
 	{ //se c'è un errore in erogazione viene bloccato il ciclo di erogazione
 
-		if (its_the_moment() && food_left_in_tank() && SCHEDULED_AUTO_EROGATION_ENABLED)
+		if (its_the_moment() && food_left_in_tank() && SCHEDULED_AUTO_EROGATION_ENABLED || is_manual)
 		{
 			//controlla se è l'ora giusta e quale pasto si deve erogare
 			// aggiorna l'indice index_of_this_meal
 			// update the food left in the box
+
+			is_manual = false;
 
 			DEBUG_PRINT("index_of_this_meal: ");
 			DEBUG_PRINTLN(index_of_this_meal);
@@ -301,6 +324,9 @@ void Manage_Class::main_function()
 
 				DEBUG_PRINT("Food left in the tank: ");
 				DEBUG_PRINTLN(tank_food_left);
+
+				display_current_food_schedule(); // update values on display
+				display_operation_completed();
 			}
 
 			card_rw.save_cycle_data();
@@ -325,9 +351,10 @@ void Manage_Class::main_function()
 // once the button on the display is pressed it will be erogated a single food dose
 void Manage_Class::manual_erogation()
 {
-	uint16_t erogation_value = 160;
-
-	DEBUG_PRINT("Manual Erogation: ");
-	DEBUG_PRINTLN(erogation_value);
-	feed.feed(erogation_value);
+	is_manual = true;
+	DEBUG_PRINTLN("Manual Erogation");
+	
+	// uint16_t erogation_value = 160;
+	// DEBUG_PRINTLN(erogation_value);
+	// feed.feed(erogation_value);
 }
