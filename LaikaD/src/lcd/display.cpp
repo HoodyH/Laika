@@ -23,10 +23,10 @@ char time_string[12];
 char status_text[20];
 
 // the status of the system
-int16_t food_targhet_tot = 0;
 int16_t food_weight_tot = 0;
-int16_t food_targhet = 0;
+int16_t food_target_tot = 0;
 int16_t food_weight = 0;
+int16_t food_target = 0;
 char food_display[28];
 
 // value to know when the system has done the init cycle
@@ -41,7 +41,7 @@ void update()
 		sprintf(status_text, "Ready");
 		break;
 	case S_EROGATION:
-		sprintf(status_text, "Tot: %d/%d Now: %d/%d", food_weight_tot, food_weight_tot, food_targhet, food_weight);
+		sprintf(status_text, "T:%d/%d N:%d/%d", food_weight_tot, food_target_tot, food_weight, food_target);
 		break;
 	}
 }
@@ -128,11 +128,11 @@ void display_today_food(uint16_t *values, uint8_t n_meals){
 	display_main_screen();
 }
 
-void display_food_val(int16_t targhet, int16_t weight, int16_t targhet_tot, int16_t weight_tot){
+void display_food_val(int16_t weight, int16_t target, int16_t weight_tot, int16_t target_tot){
 	food_weight = weight;
-	food_targhet = targhet;
-	food_weight_tot = targhet_tot;
-	food_targhet_tot = weight_tot;
+	food_target = target;
+	food_weight_tot = weight_tot;
+	food_target_tot = target_tot;
 
 	update();
 	display_main_screen();

@@ -95,7 +95,7 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 			}
 			// update the current weighted value and display it
 			currently_weight = load_cell_reading;
-			display_food_val(meal_qt_gr, currently_weight, total_target_weight, total_currently_weight);
+			display_food_val(currently_weight, meal_qt_gr, total_currently_weight+currently_weight, total_target_weight);
 		} // end check the weight in the weighing box
 
 		// calculate the motor speed

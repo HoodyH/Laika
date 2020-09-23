@@ -11,7 +11,7 @@
 
 // update the amount of food erogated
 // on display during erogation status
-void display_food_val(int16_t target, int16_t weight, int16_t target_tot, int16_t weight_tot);
+void display_food_val(int16_t weight, int16_t target, int16_t weight_tot, int16_t target_tot);
 
 // the values are negative if the food is erogated and positive if not
 // n_meals are the lenght of the array
