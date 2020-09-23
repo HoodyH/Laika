@@ -13,19 +13,21 @@ private:
 	// the current weight in the single weight loop
 	int16_t currently_weight;
 
-	// internal function to do one drop and weight cicle
-	bool drop_and_weigh(int16_t meal_qt_gr);
-
-public:
 	// the weight erogated to the bowl in all the loops
 	// read this value after drop_and_weigh function execution
 	int16_t total_currently_weight;
 
+	// internal function to do one drop and weight cicle
+	bool drop_and_weigh(int16_t meal_qt_gr);
+
+public:
 	void setup();
 	bool close_trapdoor();
 	bool open_trapdoor();
 
 	bool feed(int16_t meal_qt_gr);
+
+	int16_t get_total_currently_weight();
 };
 extern Feed_Class feed;
 

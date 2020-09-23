@@ -1,8 +1,10 @@
 #include "./src/planner/manage.h"
 #include "./src/lcd/display.h"
+#include "./src/rtc/datatime.h"
 
 Manage_Class manage;
 Display_Class display;
+Data_Time_Class data_time;
 
 void setup()
 {

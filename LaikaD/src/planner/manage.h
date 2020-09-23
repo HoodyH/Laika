@@ -48,7 +48,7 @@ public:
 	//-------------------------------------------------------------------------
 
 	uint16_t date_of_birth_dog[3] = {3, 3, 2018}; //[0]giorno,[1]mese,[2]anno
-	byte n_of_meals = 3;						  //numero di pasti giornalieri
+	byte n_meals = 3;						  //numero di pasti giornalieri
 	byte timetable[8] = {7, 0, 12, 2, 17, 3, 0, 0};
 
 	//valori precaricati dalle tabelle nutrizionali dei produttori di crocchette
@@ -75,9 +75,6 @@ public:
 	//-------------------------------------------------------------------------
 	uint16_t tank_food_left = 18000;
 	bool low_food_warning = false;
-
-	uint16_t uptime_days = 0;
-	uint16_t uptime_higher = 0;
 
 	bool its_adult = false;
 	bool its_mature = false;

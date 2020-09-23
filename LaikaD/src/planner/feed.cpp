@@ -212,6 +212,7 @@ bool Feed_Class::open_trapdoor()
 // public function to drop a certain amount of food into the bowl
 bool Feed_Class::feed(int16_t meal_qt_gr)
 {
+	total_currently_weight = 0;
 	start_millis_feed_timeout = millis(); // inizialize on the start of the cicle
 	digitalWrite(PS_ON, HIGH);			  // power up the power supply
 
@@ -266,4 +267,8 @@ bool Feed_Class::feed(int16_t meal_qt_gr)
 
 	digitalWrite(PS_ON, LOW); // shutdown power supply
 	return true;
+}
+
+int16_t Feed_Class::get_total_currently_weight(){
+	return total_currently_weight;
 }

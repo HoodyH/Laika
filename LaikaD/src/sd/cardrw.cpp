@@ -45,7 +45,7 @@ void Card_rw_Class::save_base_data()
 	date_of_birth_dog.add(manage.date_of_birth_dog[1]);
 	date_of_birth_dog.add(manage.date_of_birth_dog[2]);
 
-	DOG_INFO["n_of_meals"] = manage.n_of_meals;
+	DOG_INFO["n_meals"] = manage.n_meals;
 
 	JsonArray &timetable = DOG_INFO.createNestedArray("timetable");
 	JsonObject &meal_1 = timetable.createNestedObject();
@@ -123,7 +123,7 @@ void Card_rw_Class::load_base_data()
 	manage.date_of_birth_dog[1] = DOG_INFO_date_of_birth_dog[1];
 	manage.date_of_birth_dog[2] = DOG_INFO_date_of_birth_dog[2];
 
-	manage.n_of_meals = root["DOG_INFO"]["n_of_meals"];
+	manage.n_meals = root["DOG_INFO"]["n_meals"];
 
 	JsonArray &timetable = root["DOG_INFO"]["timetable"];
 	JsonObject &meal_1 = timetable[0];
@@ -191,11 +191,6 @@ bool Card_rw_Class::save_daily_data()
 	StaticJsonBuffer<1024> jsonBuffer;
 	JsonObject &root = jsonBuffer.createObject(); //crea l'oggetto root
 
-	//UPTIME
-	JsonObject &UP_TIME = root.createNestedObject("UP_TIME");
-	UP_TIME["uptime_days"] = manage.uptime_days;
-	UP_TIME["uptime_higher"] = manage.uptime_days;
-
 	root["its_adult"] = manage.its_adult;
 	root["its_mature"] = manage.its_mature;
 	root["its_ageing"] = manage.its_ageing;
@@ -223,9 +218,6 @@ bool Card_rw_Class::load_daily_data()
 	if (!root.success())
 		if (DEBUG_SERIAL_PRINT_ON)
 			Serial.println(F("Failed to read file daily.dat, using default configuration"));
-
-	manage.uptime_days = root["UPTIME"]["uptime_days"];
-	manage.uptime_higher = root["UPTIME"]["uptime_higher"];
 
 	manage.its_adult = root["its_adult"];
 	manage.its_mature = root["its_mature"];
@@ -355,7 +347,7 @@ void Card_rw_Class::save_record()
 	data.add(manage.month);
 	data.add(manage.day);
 
-	root["n_of_meals"] = manage.n_of_meals;
+	root["n_meals"] = manage.n_meals;
 
 	JsonArray &measl = root.createNestedArray("measl");
 
@@ -365,7 +357,7 @@ void Card_rw_Class::save_record()
 	time["minute"] = manage.real_timetable[1];
 	first_meal["portion"] = manage.adj_gr_meal[0];
 
-	if (manage.n_of_meals > 1)
+	if (manage.n_meals > 1)
 	{
 
 		JsonObject &second_meal = measl.createNestedObject();
@@ -374,7 +366,7 @@ void Card_rw_Class::save_record()
 		time["minute"] = manage.real_timetable[3];
 		second_meal["portion"] = manage.adj_gr_meal[1];
 
-		if (manage.n_of_meals > 2)
+		if (manage.n_meals > 2)
 		{
 			JsonObject &third_meal = measl.createNestedObject();
 			JsonObject &time = third_meal.createNestedObject("time");
@@ -382,7 +374,7 @@ void Card_rw_Class::save_record()
 			time["minute"] = manage.real_timetable[5];
 			third_meal["portion"] = manage.adj_gr_meal[2];
 
-			if (manage.n_of_meals > 3)
+			if (manage.n_meals > 3)
 			{
 				JsonObject &fourth_meal = measl.createNestedObject();
 				JsonObject &time = fourth_meal.createNestedObject("time");

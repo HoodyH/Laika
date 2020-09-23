@@ -14,7 +14,7 @@
 // on display during erogation status
 void display_food_val(int16_t target, int16_t weight);
 
-void display_today_food(uint16_t *value, bool *is_done);
+void display_today_food(uint16_t *value, bool *is_done, uint8_t n_meals);
 
 // when the erogation is done and is time to set again the ready message
 void display_operation_completed();

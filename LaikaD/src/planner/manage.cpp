@@ -12,7 +12,6 @@
 #include "manage.h"
 #include "feed.h"
 
-Data_Time_Class data_time;
 Card_rw_Class card_rw;
 Error_Class error;
 Buzzer_Class buzzer;
@@ -50,7 +49,7 @@ void Manage_Class::display_current_food_schedule()
 		current_food_array[i] = adj_gr_meal[i];
 	}
 
-	display_today_food(current_food_array, done_meal);
+	display_today_food(current_food_array, done_meal, n_meals);
 }
 
 void Manage_Class::past_life()
@@ -103,11 +102,11 @@ void Manage_Class::portion_calculation(uint16_t food)
 	uint16_t waste;
 	uint16_t portion;
 
-	waste = gr_today_food % n_of_meals;
-	portion = (gr_today_food - waste) / n_of_meals;
+	waste = gr_today_food % n_meals;
+	portion = (gr_today_food - waste) / n_meals;
 
 	original_gr_meal[0] = portion + waste;
-	for (byte i = 1; i < n_of_meals; i++)
+	for (byte i = 1; i < n_meals; i++)
 	{
 		original_gr_meal[i] = portion;
 	}
@@ -206,9 +205,10 @@ void Manage_Class::firstStart()
 bool Manage_Class::its_the_moment()
 {
 
-	while (index_of_this_meal < n_of_meals)
+	while (index_of_this_meal < n_meals)
 	{
-		if (done_meal[index_of_this_meal] == true) //controllo a quale pasto � arrivato
+		// check wich meal have to be erogated
+		if (done_meal[index_of_this_meal] == true) 
 			index_of_this_meal++;
 		else if (hour > timetable[index_of_this_meal * 2] && minute >= (15 * timetable[(index_of_this_meal * 2) + 1])) //controllo se � l'ora
 			return true;
@@ -264,13 +264,14 @@ void Manage_Class::main_function()
 	data_time.get_data_time(&year, &month, &day, &hour, &minute, &second);
 
 	// calculare daily values once per day and store them into the sd
+	// do this only at the start of the day
 	if (daily_ceck_to_do)
 	{
-		if (uptime_days > uptime_higher)
-			uptime_higher = uptime_days;
+		// check the age of the dog and if its is birthday
+		past_life();
 
-		past_life();			   //controlla quanto tempo ha il cane e lo memorizza nelle variabili di classe
-		update_dayly_food_value(); //Aggiorna le variabili delle quantità giornaliere
+		// update variables of daily food
+		update_dayly_food_value(); 
 
 		index_of_this_meal = 0;
 		adj_gr_meal[0] = original_gr_meal[0];
@@ -289,6 +290,7 @@ void Manage_Class::main_function()
 			// aggiorna l'indice index_of_this_meal
 			// update the food left in the box
 
+			// set the is_manual to false, when the food erogation has been triggered manually
 			is_manual = false;
 
 			DEBUG_PRINT("index_of_this_meal: ");
@@ -296,21 +298,32 @@ void Manage_Class::main_function()
 
 			DEBUG_PRINTLN("Start Erogation!");
 
+			// drop the portion and update the done_meal array if success
 			done_meal[index_of_this_meal] = feed.feed(adj_gr_meal[index_of_this_meal]);
+
+			// the amount of foot erogated in this cycle
+			int16_t erogated_food = feed.get_total_currently_weight();
 
 			DEBUG_PRINTLN("Erogation Done!");
 			DEBUG_PRINT("Erogated weight in g: ");
-			DEBUG_PRINTLN(feed.total_currently_weight);
+			DEBUG_PRINTLN(erogated_food);
 
 			// if the meal has been correctly released
 			if (done_meal[index_of_this_meal])
-			{
-				if (index_of_this_meal < n_of_meals)
+			{	
+				// if this meal is under the number of daily meals
+				if (index_of_this_meal < n_meals)
 				{
-					adj_gr_meal[index_of_this_meal + 1] = original_gr_meal[index_of_this_meal + 1] - (feed.total_currently_weight - adj_gr_meal[index_of_this_meal]);
+					// adjust the next meal
+					int8_t adj_value = (erogated_food - adj_gr_meal[index_of_this_meal]);
+					adj_gr_meal[index_of_this_meal + 1] = original_gr_meal[index_of_this_meal + 1] - adj_value;
+					
+					// update the erogated food value
+					adj_gr_meal[index_of_this_meal] = erogated_food;
+
 					index_of_this_meal++;
 					DEBUG_PRINT("Next meal weight: ");
-					DEBUG_PRINTLN(adj_gr_meal[index_of_this_meal + 1]);
+					DEBUG_PRINTLN(adj_gr_meal[index_of_this_meal]);
 				}
 				else
 				{
@@ -318,10 +331,8 @@ void Manage_Class::main_function()
 					DEBUG_PRINTLN("All done for today");
 				}
 
-				adj_gr_meal[index_of_this_meal] = feed.total_currently_weight;
-				tank_food_left -= feed.total_currently_weight;
-				feed.total_currently_weight = 0;
-
+				// update food left in tank
+				tank_food_left -= erogated_food;
 				DEBUG_PRINT("Food left in the tank: ");
 				DEBUG_PRINTLN(tank_food_left);
 
@@ -353,8 +364,4 @@ void Manage_Class::manual_erogation()
 {
 	is_manual = true;
 	DEBUG_PRINTLN("Manual Erogation");
-	
-	// uint16_t erogation_value = 160;
-	// DEBUG_PRINTLN(erogation_value);
-	// feed.feed(erogation_value);
 }

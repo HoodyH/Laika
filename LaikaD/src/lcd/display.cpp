@@ -4,6 +4,7 @@
 #include "../config.h"
 #include "../utility/debug.h"
 #include "../planner/manage.h"
+#include "../rtc/datatime.h"
 
 #include "display.h"
 #include "main_screen_bitmap.h"
@@ -13,6 +14,9 @@ U8GLIB_ST7920_128X64_1X u8g(LCD_ENABLE_PIN, LCD_RW_PIN, LCD_RS_PIN); // SPI Com:
 
 // the status of the system
 int8_t display_status_flag = S_READY;
+
+// to display the current system time
+char time_string[12];
 
 // current text status
 // it will show
@@ -74,10 +78,15 @@ void display_main_screen()
 	// u8g.drawXBM(0, 20, 10, 10, LOGO);
 	u8g.firstPage();
 	do {
+		// title
 		u8g.setFont(u8g_font_fub11);
 		u8g.drawStr(0, 12, "Laika");
 
-		// status data
+		// time
+		u8g.setFont(u8g_font_6x12);
+		u8g.drawStr(70, 8, time_string);
+
+		// food data
 		u8g.setFont(u8g_font_6x12);
 		u8g.drawStr(0, 40, "Food for today:");
 		u8g.setFont(u8g_font_6x12);
@@ -90,12 +99,12 @@ void display_main_screen()
 }
 
 
-void display_today_food(uint16_t *value, bool *is_done){
+void display_today_food(uint16_t *value, bool *is_done, uint8_t n_meals){
 
 	food_display[0] = '\0';
 	char single_meal[6];
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < n_meals; i++)
 	{
 		if (is_done[i] == true)
 			sprintf(single_meal, "!%d \0", value[i]);
@@ -107,6 +116,18 @@ void display_today_food(uint16_t *value, bool *is_done){
 	
 	update();
 	display_main_screen();
+}
+
+void update_time(){
+	uint16_t year;
+	byte month;
+	byte day;
+	byte hour;
+	byte minute;
+	byte second;
+
+	data_time.get_data_time(&year, &month, &day, &hour, &minute, &second);
+	sprintf(time_string, "%d/%d %d:%d", month, day, hour, minute);
 }
 
 void display_food_val(int16_t targhet, int16_t weight){
@@ -162,6 +183,7 @@ void Display_Class::update_ui()
 		update();
 	}
 
+	update_time();
 	update_display_button_state();
 	display_main_screen();
 }
