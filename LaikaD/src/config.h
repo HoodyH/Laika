@@ -1,6 +1,8 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+#define VERSION "v0.1.12"
+
 //configurazione motore
 
 #define MAIN_MOTOR_CURRENT 1000          //mA

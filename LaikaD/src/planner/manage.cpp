@@ -273,6 +273,8 @@ void Manage_Class::main_function()
 
 		daily_ceck_to_do = false; //controllo eseguito
 		display_current_food_schedule();
+		display_next_food_schedule(timetable[index_of_this_meal*2], timetable[index_of_this_meal * 2 + 1] * 15);
+		display_update();
 		card_rw.save_daily_data();
 	}
 
@@ -332,7 +334,9 @@ void Manage_Class::main_function()
 				DEBUG_PRINTLN(tank_food_left);
 
 				display_current_food_schedule(); // update values on display
+				display_next_food_schedule(timetable[index_of_this_meal], timetable[index_of_this_meal * 2]);
 				display_operation_completed();
+				display_update();
 			}
 
 			card_rw.save_cycle_data();

@@ -18,8 +18,10 @@ int8_t display_status_flag = S_READY;
 // to display the current system time
 char time_string[12];
 
-// current text status
-// it will show
+// to display the next time when the food will be erogated
+char food_next_schedule_string[16];
+
+// current text status of the system
 char status_text[20];
 
 // the status of the system
@@ -41,7 +43,7 @@ void update()
 		sprintf(status_text, "Ready");
 		break;
 	case S_EROGATION:
-		sprintf(status_text, "T:%d/%d N:%d/%d", food_weight_tot, food_target_tot, food_weight, food_target);
+		sprintf(status_text, "T:%d/%d N:%d/%d\0", food_weight_tot, food_target_tot, food_weight, food_target);
 		break;
 	}
 }
@@ -80,6 +82,9 @@ void display_startup_screen()
 	do {
 		u8g.setFont(u8g_font_fub11);
 		u8g.drawStr(5, 35, "Power Up");
+
+		u8g.setFont(u8g_font_6x12);
+		u8g.drawStr(0, 63, VERSION);
 	} while (u8g.nextPage());
 }
 
@@ -97,6 +102,10 @@ void display_main_screen()
 		u8g.setFont(u8g_font_6x12);
 		u8g.drawStr(70, 8, time_string);
 
+		// Next food erogation scheduled
+		u8g.setFont(u8g_font_6x12);
+		u8g.drawStr(0, 30, food_next_schedule_string);
+
 		// food data
 		u8g.setFont(u8g_font_6x12);
 		u8g.drawStr(0, 40, "Food for today:");
@@ -107,6 +116,10 @@ void display_main_screen()
 		u8g.setFont(u8g_font_6x12);
 		u8g.drawStr(0, 63, status_text);
 	} while (u8g.nextPage());
+}
+
+void display_next_food_schedule(int8_t hour, int8_t minute){
+	sprintf(food_next_schedule_string, "Next on: %d:%d\0", hour, minute);
 }
 
 // the values are negative if the food is erogated and positive if not
@@ -123,9 +136,6 @@ void display_today_food(uint16_t *values, uint8_t n_meals){
 		
 		strcat(food_display, single_meal);
 	}
-	
-	update();
-	display_main_screen();
 }
 
 void display_food_val(int16_t weight, int16_t target, int16_t weight_tot, int16_t target_tot){
@@ -141,6 +151,10 @@ void display_food_val(int16_t weight, int16_t target, int16_t weight_tot, int16_
 void display_operation_completed()
 {
 	display_status_flag = S_READY;
+}
+
+// force the update of the display externally
+void display_update(){
 	update();
 	display_main_screen();
 }

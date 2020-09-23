@@ -17,8 +17,14 @@ void display_food_val(int16_t weight, int16_t target, int16_t weight_tot, int16_
 // n_meals are the lenght of the array
 void display_today_food(uint16_t *values, uint8_t n_meals);
 
+// display the furure time when the food will be automatically released
+void display_next_food_schedule(int8_t hour, int8_t minute);
+
 // when the erogation is done and is time to set again the ready message
 void display_operation_completed();
+
+// force the update of the display externally
+void display_update();
 
 
 class Display_Class
