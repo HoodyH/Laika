@@ -36,20 +36,15 @@ void Manage_Class::setup()
 // build the food data that have to be displayed
 void Manage_Class::display_current_food_schedule()
 {
-	uint16_t current_food_array[4];
-	int8_t i;
+	uint16_t current_food_array[n_meals];
+	memcpy(current_food_array, original_gr_meal, sizeof(uint16_t)*n_meals);
 
-	for (i = 0; i < 4; i++)
+	for (int8_t i = 0; i < index_of_this_meal; i++)
 	{
-		current_food_array[i] = original_gr_meal[i];
+		current_food_array[i] = adj_gr_meal[i] * -1;
 	}
 
-	for (i = 0; i <= index_of_this_meal; i++)
-	{
-		current_food_array[i] = adj_gr_meal[i];
-	}
-
-	display_today_food(current_food_array, done_meal, n_meals);
+	display_today_food(current_food_array, n_meals);
 }
 
 void Manage_Class::past_life()

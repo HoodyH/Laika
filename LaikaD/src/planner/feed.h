@@ -16,6 +16,7 @@ private:
 	// the weight erogated to the bowl in all the loops
 	// read this value after drop_and_weigh function execution
 	int16_t total_currently_weight;
+	int16_t total_target_weight;
 
 	// internal function to do one drop and weight cicle
 	bool drop_and_weigh(int16_t meal_qt_gr);

@@ -95,7 +95,7 @@ bool Feed_Class::drop_and_weigh(int16_t meal_qt_gr)
 			}
 			// update the current weighted value and display it
 			currently_weight = load_cell_reading;
-			display_food_val(meal_qt_gr, currently_weight);
+			display_food_val(meal_qt_gr, currently_weight, total_target_weight, total_currently_weight);
 		} // end check the weight in the weighing box
 
 		// calculate the motor speed
@@ -212,6 +212,7 @@ bool Feed_Class::open_trapdoor()
 // public function to drop a certain amount of food into the bowl
 bool Feed_Class::feed(int16_t meal_qt_gr)
 {
+	total_target_weight = meal_qt_gr;
 	total_currently_weight = 0;
 	start_millis_feed_timeout = millis(); // inizialize on the start of the cicle
 	digitalWrite(PS_ON, HIGH);			  // power up the power supply

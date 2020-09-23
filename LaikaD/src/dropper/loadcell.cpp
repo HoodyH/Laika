@@ -27,6 +27,9 @@ int16_t Load_Cell_Class::get_weight()
 {
 	weigth = load_cell_dx.get_units();
 
+	if (weigth <= 0)
+		weigth = 0;
+		
 	return weigth;
 }
 

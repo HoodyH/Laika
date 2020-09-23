@@ -23,12 +23,11 @@ char time_string[12];
 char status_text[20];
 
 // the status of the system
-int16_t food_weight = 0;
+int16_t food_targhet_tot = 0;
+int16_t food_weight_tot = 0;
 int16_t food_targhet = 0;
+int16_t food_weight = 0;
 char food_display[28];
-
-// food of the day values
-
 
 // value to know when the system has done the init cycle
 bool is_ready = false;
@@ -42,9 +41,21 @@ void update()
 		sprintf(status_text, "Ready");
 		break;
 	case S_EROGATION:
-		sprintf(status_text, "Erogated: %d/%d", food_targhet, food_weight);
+		sprintf(status_text, "Tot: %d/%d Now: %d/%d", food_weight_tot, food_weight_tot, food_targhet, food_weight);
 		break;
 	}
+}
+
+void update_time(){
+	uint16_t year;
+	byte month;
+	byte day;
+	byte hour;
+	byte minute;
+	byte second;
+
+	data_time.get_data_time(&year, &month, &day, &hour, &minute, &second);
+	sprintf(time_string, "%d/%d %d:%d", month, day, hour, minute);
 }
 
 // start food erogation once the button is pressed
@@ -98,18 +109,17 @@ void display_main_screen()
 	} while (u8g.nextPage());
 }
 
-
-void display_today_food(uint16_t *value, bool *is_done, uint8_t n_meals){
+// the values are negative if the food is erogated and positive if not
+void display_today_food(uint16_t *values, uint8_t n_meals){
 
 	food_display[0] = '\0';
 	char single_meal[6];
 
 	for (int i = 0; i < n_meals; i++)
 	{
-		if (is_done[i] == true)
-			sprintf(single_meal, "!%d \0", value[i]);
-		else
-			sprintf(single_meal, "%d \0", value[i]);	
+		sprintf(single_meal, "%d \0", values[i]);
+		if ((int16_t)values[i] < 0)
+			single_meal[0] = '!';
 		
 		strcat(food_display, single_meal);
 	}
@@ -118,21 +128,12 @@ void display_today_food(uint16_t *value, bool *is_done, uint8_t n_meals){
 	display_main_screen();
 }
 
-void update_time(){
-	uint16_t year;
-	byte month;
-	byte day;
-	byte hour;
-	byte minute;
-	byte second;
-
-	data_time.get_data_time(&year, &month, &day, &hour, &minute, &second);
-	sprintf(time_string, "%d/%d %d:%d", month, day, hour, minute);
-}
-
-void display_food_val(int16_t targhet, int16_t weight){
+void display_food_val(int16_t targhet, int16_t weight, int16_t targhet_tot, int16_t weight_tot){
 	food_weight = weight;
 	food_targhet = targhet;
+	food_weight_tot = targhet_tot;
+	food_targhet_tot = weight_tot;
+
 	update();
 	display_main_screen();
 }
