@@ -30,7 +30,9 @@ protected:
 	bool reset_to_do();
 	void reset_day();
 	bool food_left_in_tank();
-	void display_current_food_schedule();
+	
+	void update_current_food_schedule();
+	void update_next_food_schedule();
 
 	bool is_manual = false;
 

@@ -2,6 +2,7 @@
 #include <RTClib.h>
 #include "../config.h"
 #include "../utility/errors.h"
+#include "../utility/debug.h"
 
 #include "datatime.h"
 
@@ -13,17 +14,34 @@ void Data_Time_Class::rtc_setup()
 	Wire.begin();
 	RTC.begin();
 
-	RTC.adjust(DateTime(__DATE__, __TIME__));
+	RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
 	if (RTC.isrunning())
-	{
-		if (DEBUG_SERIAL_PRINT_ON)
-			Serial.println("rtc setup completed");
-	}
+		DEBUG_PRINTLN("rtc setup completed");
 	else
 		error.system_status(CRITICAL_ERROR_8400);
+
+	// query the rtc module
+	DateTime now = RTC.now();
+	char date_time_setup[16];
+
+	// generate the string on startup to show the date time on serial
+	sprintf(
+		date_time_setup, 
+		"%04d/%02d/%02d %02d:%02d:%02d", 
+		now.year(), 
+		now.month(),
+		now.day(),
+		now.hour(),
+		now.minute(),
+		now.second()
+	);
+
+	DEBUG_PRINT("Rtc setup time: ");
+	DEBUG_PRINTLN(date_time_setup);
 }
 
+// return time from the rtc module, without exposing the DateTime object
 void Data_Time_Class::get_data_time(uint16_t *y, byte *m, byte *d, byte *h, byte *min, byte *s)
 {
 
@@ -37,6 +55,7 @@ void Data_Time_Class::get_data_time(uint16_t *y, byte *m, byte *d, byte *h, byte
 	*s = now.second();
 }
 
+// check if the Rtc module it's ok, if not raise a critical error.
 bool Data_Time_Class::ceck()
 {
 

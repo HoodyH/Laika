@@ -57,7 +57,7 @@ void update_time(){
 	byte second;
 
 	data_time.get_data_time(&year, &month, &day, &hour, &minute, &second);
-	sprintf(time_string, "%d/%d %d:%d", month, day, hour, minute);
+	sprintf(time_string, "%02d/%02d %02d:%02d", month, day, hour, minute);
 }
 
 // start food erogation once the button is pressed
@@ -100,7 +100,7 @@ void display_main_screen()
 
 		// time
 		u8g.setFont(u8g_font_6x12);
-		u8g.drawStr(70, 8, time_string);
+		u8g.drawStr(60, 8, time_string);
 
 		// Next food erogation scheduled
 		u8g.setFont(u8g_font_6x12);
@@ -119,7 +119,7 @@ void display_main_screen()
 }
 
 void display_next_food_schedule(int8_t hour, int8_t minute){
-	sprintf(food_next_schedule_string, "Next on: %d:%d\0", hour, minute);
+	sprintf(food_next_schedule_string, "Next on: %02d:%02d\0", hour, minute);
 }
 
 // the values are negative if the food is erogated and positive if not

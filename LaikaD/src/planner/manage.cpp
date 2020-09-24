@@ -34,22 +34,45 @@ void Manage_Class::setup()
 }
 
 // build the food data that have to be displayed
-void Manage_Class::display_current_food_schedule()
+// if the food has not been released use the original_gr_meal
+// if has been released use the adj_gr_meal that have the exact value dropped 
+void Manage_Class::update_current_food_schedule()
 {
-	uint16_t current_food_array[n_meals];
+	uint16_t current_food_array[n_meals]; // allocate an array with n_meals len
+
+	// copy the std valued in the current_food_array
 	memcpy(current_food_array, original_gr_meal, sizeof(uint16_t)*n_meals);
 
+	// update just the already dropped values with the adj_gr_meal
+	// if a value has been dropped set the value as negative
+	// the negative value is used in the display function to know that has been dropped
 	for (int8_t i = 0; i < index_of_this_meal; i++)
 	{
-		current_food_array[i] = adj_gr_meal[i] * -1;
+		current_food_array[i] = adj_gr_meal[i] * -1;  // * -1 convert to negative
 	}
-
+	
 	display_today_food(current_food_array, n_meals);
 }
 
-void Manage_Class::past_life()
-{ //calcola quanti anni, mesi, giorni ha il cane
+// update the display the food data that have to be displayed
+// get the futire time from timetable that is builted as:
+// {hour1, minute1, hour2, minute2, ...}
+void Manage_Class::update_next_food_schedule()
+{
+	int8_t hour = timetable[index_of_this_meal * 2];
+	
+	// the misutes are saved in range 1-4 as quarters.
+	// to get the right quarter you have to multiply the value * 15
+	int8_t minute = timetable[index_of_this_meal * 2 + 1] * 15;
 
+	// update the value in the display. 
+	// This will update only the string and not also refresh the display
+	display_next_food_schedule(hour, minute);
+}
+
+// calculate how many days has been past since the birth of the dog
+void Manage_Class::past_life()
+{
 	if (day >= date_of_birth_dog[0])
 		d_nope = 0; //il giorno è stato superato
 	else
@@ -272,8 +295,8 @@ void Manage_Class::main_function()
 		adj_gr_meal[0] = original_gr_meal[0];
 
 		daily_ceck_to_do = false; //controllo eseguito
-		display_current_food_schedule();
-		display_next_food_schedule(timetable[index_of_this_meal*2], timetable[index_of_this_meal * 2 + 1] * 15);
+		update_current_food_schedule();
+		update_next_food_schedule();		
 		display_update();
 		card_rw.save_daily_data();
 	}
@@ -333,8 +356,8 @@ void Manage_Class::main_function()
 				DEBUG_PRINT("Food left in the tank: ");
 				DEBUG_PRINTLN(tank_food_left);
 
-				display_current_food_schedule(); // update values on display
-				display_next_food_schedule(timetable[index_of_this_meal], timetable[index_of_this_meal * 2]);
+				update_current_food_schedule(); // update values on display
+				update_next_food_schedule(); // update next hour on display
 				display_operation_completed();
 				display_update();
 			}
