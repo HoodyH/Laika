@@ -51,6 +51,11 @@ void Manage_Class::update_current_food_schedule()
 		current_food_array[i] = adj_gr_meal[i] * -1;  // * -1 convert to negative
 	}
 	
+	// if there is a future adj weight in the array display its
+	// the future value is update once the previour cycle is finisced
+	if (adj_gr_meal[index_of_this_meal] != 0)
+		current_food_array[index_of_this_meal] = adj_gr_meal[index_of_this_meal];
+	
 	display.today_food(current_food_array, n_meals);
 }
 
@@ -228,8 +233,16 @@ bool Manage_Class::its_the_moment()
 		// check wich meal have to be erogated
 		if (done_meal[index_of_this_meal] == true) 
 			index_of_this_meal++;
-		else if (hour > timetable[index_of_this_meal * 2] && minute >= (15 * timetable[(index_of_this_meal * 2) + 1])) //controllo se � l'ora
+		
+		// late release, the our of the schedule has passed.
+		else if (hour > timetable[index_of_this_meal * 2])
 			return true;
+		
+		// is the time in the hour
+		// the hour is right and we are weaiting the minute 
+		else if (hour == timetable[index_of_this_meal * 2] && minute >= (15 * timetable[(index_of_this_meal * 2) + 1]))
+			return true;
+
 		return false;
 	}
 }

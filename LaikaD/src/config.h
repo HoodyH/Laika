@@ -9,13 +9,14 @@
 #define MAIN_MOTOR_STEP_PER_ROTATION 200 //steps
 #define MAIN_MOTOR_MICROSTEP 16          //1/x in questo caso --> ogni 16 step software equivale uno reale del motore
 
-#define LOAD_CELL_ADJ_FULL_SCALE 380 //grams  , aggiungere qualche grammo in pi� per una pesata pi� generosa (tener conto imprecisione cella)
+// this value is used to calibrate the cell
+// change this value while the weight of the cell correspond to the output
+#define LOAD_CELL_ADJ_FULL_SCALE 380 
 
-#define ENCODER_MAIN_PULSE_PER_ROTATION 2400 //pulse ,   resolution of the encoder
+// pulse per rotation of the encoder
+#define ENCODER_MAIN_PULSE_PER_ROTATION 2400
 
-//doser config
-
-//funzione drop
+// main motor doser configs
 #define MAIN_MOTOR_MAX_ROTATION_PER_MIN 20  //rotation*min
 #define MAIN_MOTOR_MIN_ROTATION_PER_MIN 10   //rotation*min
 #define MAIN_MOTOR_FINAL_ROTATION_PER_MIN 6 //rotation*min
@@ -37,10 +38,10 @@
 //differenza massima tra encoder e steps contati per avviare il ritorno indietro
 #define MAX_DIF_ENCODER_STEPPER 5 //steps
 //in gram, peso massimo che pu� contenere il WEIGHING_COLLECTOR oltre il quale bisogna dividere la pesata
-#define MAX_WEIGHT_IN_WEIGHING_COLLECTOR 125 //grams
+#define MAX_WEIGHT_IN_WEIGHING_COLLECTOR 110 //grams
 //peso sopra al peso massimo che permette di eseguire una nuova pesata.
 //se ci sono pochi grammi sopra MAX_WEIGHT_IN_WEIGHING_COLLECTOR la pesata multipla non pu� essere precisa
-#define OVER_WEIGHT_IN_WEIGHING_COLLECTOR 20 //grams
+#define OVER_WEIGHT_IN_WEIGHING_COLLECTOR 25 //grams
 
 //definisce lo stato aperto o chiuso delle porte, sulla base della logica della scheda NO/NC
 #define SWITCH_DOOR_OPEN LOW
