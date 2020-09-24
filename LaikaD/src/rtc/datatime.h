@@ -1,19 +1,17 @@
 // datatime.h
-
 #ifndef _DATATIME_h
 #define _DATATIME_h
 
-	#if defined(ARDUINO) && ARDUINO >= 100
-		#include "arduino.h"
-	#else
-		#include "WProgram.h"
-	#endif
+#include <RTClib.h>
+
 
 class Data_Time_Class
 {
- protected:
+protected:
+
+	DateTime startup_datetime;
 	
- public:
+public:
 
 	void rtc_setup();
 	void get_data_time(uint16_t *y, byte *m, byte *d, byte *h, byte *min, byte *s);

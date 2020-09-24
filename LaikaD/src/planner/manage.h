@@ -28,9 +28,8 @@ protected:
 	void update_dayly_food_value();
 	bool its_the_moment();
 	bool reset_to_do();
-	void reset_day();
 	bool food_left_in_tank();
-	
+
 	void update_current_food_schedule();
 	void update_next_food_schedule();
 
@@ -51,7 +50,7 @@ public:
 
 	uint16_t date_of_birth_dog[3] = {3, 3, 2018}; //[0]giorno,[1]mese,[2]anno
 	byte n_meals = 3;						  //numero di pasti giornalieri
-	byte timetable[8] = {7, 0, 12, 2, 17, 3, 0, 0};
+	byte timetable[8] = {6, 1, 12, 2, 18, 1, 0, 0};
 
 	//valori precaricati dalle tabelle nutrizionali dei produttori di crocchette
 	//basati sulle tabelle di Royal Canin (di default)
@@ -87,7 +86,6 @@ public:
 	bool adult_portion_to_calculate = true;
 
 	bool today_all_done = false; //da resettare ogni giorno
-	bool reset_done = false;
 
 	//-------------------------------------------------------------------------
 	//variabili per il controllo di ciclo

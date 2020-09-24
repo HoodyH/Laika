@@ -247,27 +247,19 @@ bool Manage_Class::its_the_moment()
 	}
 }
 
+// check if the reset have to be done
 bool Manage_Class::reset_to_do()
 {
-	if (hour = 0 && minute > 1)
+	if (hour == 0 && minute <= 1 && second <= 30)
+
+		// if is not all done the user has not check the machine
 		if (!today_all_done)
 			error.system_status(1);
 		else
 			return true;
+
 	else
 		return false;
-}
-
-void Manage_Class::reset_day()
-{
-	daily_ceck_to_do = true;
-	today_all_done = false;
-	index_of_this_meal = 0; //resetta l'indice dei pasti
-
-	for (int i = 0; i < 4; i++)
-	{ //resetta i pasti erogati
-		done_meal[i] = false;
-	}
 }
 
 bool Manage_Class::food_left_in_tank()
@@ -388,11 +380,24 @@ void Manage_Class::main_function()
 		card_rw.save_record();
 	}
 
-	//all'inizio della giornata successiva
-	if (!reset_done && reset_to_do())
+	// daily reset
+	if (reset_to_do())
 	{
 		DEBUG_PRINTLN("Daily Reset");
-		reset_day();
+
+		// reset all the values
+		daily_ceck_to_do = true;
+		today_all_done = false;
+		index_of_this_meal = 0;
+
+		for (int i = 0; i < 4; i++)
+		{ //resetta i pasti erogati
+			done_meal[i] = false;
+			adj_gr_meal[i] = 0;
+		}
+
+		void(* reboot)(void) = 0;
+		reboot();
 	}
 }
 

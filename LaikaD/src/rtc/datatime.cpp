@@ -22,7 +22,7 @@ void Data_Time_Class::rtc_setup()
 		error.system_status(CRITICAL_ERROR_8400);
 
 	// query the rtc module
-	DateTime now = RTC.now();
+	startup_datetime = RTC.now();
 	char date_time_setup[16];
 
 	// generate the string on startup to show the date time on serial
