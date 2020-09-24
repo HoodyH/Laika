@@ -29,11 +29,11 @@
 //#define LOAD_CELL_OSCILLATION_VALUE			6		//grams  attualmente non utilizzato
 
 // move the moto backwards on end to avoid more food drop on vibration
-#define MAIN_MOTOR_BACKWARDS_ON_END 30 //steps
+#define MAIN_MOTOR_BACKWARDS_ON_END 20 //steps
 
 //in step reali del motore  (se il motore � da 200 step allora 50 = 1/4 di giro)
 //quanto il motore pu� tornare in dietro se si blocca
-#define MAIN_MOTOR_STD_BACKWARDS_ROTATION 30 //steps
+#define MAIN_MOTOR_STD_BACKWARDS_ROTATION 20 //steps
 //differenza massima tra encoder e steps contati per avviare il ritorno indietro
 #define MAX_DIF_ENCODER_STEPPER 5 //steps
 //in gram, peso massimo che pu� contenere il WEIGHING_COLLECTOR oltre il quale bisogna dividere la pesata
@@ -70,8 +70,8 @@
 
 #define DEBUG_SERIAL_PRINT_ON true
 
-// disable automatic food erogation
-// only manual will be avaiable
-#define SCHEDULED_AUTO_EROGATION_ENABLED false
+// disable or enable automatic food erogation
+// with false only manual erogation will be avaiable
+#define SCHEDULED_AUTO_EROGATION_ENABLED true
 
 #endif

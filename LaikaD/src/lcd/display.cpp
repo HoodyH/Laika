@@ -12,9 +12,6 @@
 
 U8GLIB_ST7920_128X64_1X u8g(LCD_ENABLE_PIN, LCD_RW_PIN, LCD_RS_PIN); // SPI Com: e=18,rw=17,rs=16
 
-// the status of the system
-int8_t display_status_flag = S_READY;
-
 // to display the current system time
 char time_string[12];
 
@@ -35,7 +32,7 @@ char food_display[28];
 bool is_ready = false;
 
 // do pre operations on the display
-void update()
+void Display_Class::update_status()
 {
 	switch (display_status_flag)
 	{
@@ -48,7 +45,7 @@ void update()
 	}
 }
 
-void update_time(){
+void Display_Class::update_time(){
 	uint16_t year;
 	byte month;
 	byte day;
@@ -61,22 +58,18 @@ void update_time(){
 }
 
 // start food erogation once the button is pressed
-void update_display_button_state()
+void Display_Class::update_display_button_state()
 {
 	if (digitalRead(BTN_ENC_PIN) == LOW)
 	{
 		u8g.sleepOff(); //power on the display
-		
 		DEBUG_PRINTLN("Button Pressed");
-		display_status_flag = S_EROGATION;
-		update();
-
 		manage.manual_erogation();
 	}
 }
 
 
-void display_startup_screen()
+void Display_Class::display_startup_screen()
 {
 	u8g.firstPage();
 	do {
@@ -89,7 +82,7 @@ void display_startup_screen()
 }
 
 
-void display_main_screen()
+void Display_Class::display_main_screen()
 {
 	// u8g.drawXBM(0, 20, 10, 10, LOGO);
 	u8g.firstPage();
@@ -118,12 +111,12 @@ void display_main_screen()
 	} while (u8g.nextPage());
 }
 
-void display_next_food_schedule(int8_t hour, int8_t minute){
+void Display_Class::next_food_schedule(int8_t hour, int8_t minute){
 	sprintf(food_next_schedule_string, "Next on: %02d:%02d\0", hour, minute);
 }
 
 // the values are negative if the food is erogated and positive if not
-void display_today_food(uint16_t *values, uint8_t n_meals){
+void Display_Class::today_food(uint16_t *values, uint8_t n_meals){
 
 	food_display[0] = '\0';
 	char single_meal[6];
@@ -138,24 +131,19 @@ void display_today_food(uint16_t *values, uint8_t n_meals){
 	}
 }
 
-void display_food_val(int16_t weight, int16_t target, int16_t weight_tot, int16_t target_tot){
+void Display_Class::food_val(int16_t weight, int16_t target, int16_t weight_tot, int16_t target_tot){
 	food_weight = weight;
 	food_target = target;
 	food_weight_tot = weight_tot;
 	food_target_tot = target_tot;
 
-	update();
+	update_status();
 	display_main_screen();
 }
 
-void display_operation_completed()
-{
-	display_status_flag = S_READY;
-}
-
 // force the update of the display externally
-void display_update(){
-	update();
+void Display_Class::update(){
+	update_status();
 	display_main_screen();
 }
 

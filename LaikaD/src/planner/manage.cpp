@@ -51,7 +51,7 @@ void Manage_Class::update_current_food_schedule()
 		current_food_array[i] = adj_gr_meal[i] * -1;  // * -1 convert to negative
 	}
 	
-	display_today_food(current_food_array, n_meals);
+	display.today_food(current_food_array, n_meals);
 }
 
 // update the display the food data that have to be displayed
@@ -67,7 +67,7 @@ void Manage_Class::update_next_food_schedule()
 
 	// update the value in the display. 
 	// This will update only the string and not also refresh the display
-	display_next_food_schedule(hour, minute);
+	display.next_food_schedule(hour, minute);
 }
 
 // calculate how many days has been past since the birth of the dog
@@ -295,9 +295,10 @@ void Manage_Class::main_function()
 		adj_gr_meal[0] = original_gr_meal[0];
 
 		daily_ceck_to_do = false; //controllo eseguito
-		update_current_food_schedule();
-		update_next_food_schedule();		
-		display_update();
+		update_current_food_schedule(); // update food schedule on display
+		update_next_food_schedule(); // update nex food time on display	
+		display.update();
+
 		card_rw.save_daily_data();
 	}
 
@@ -317,6 +318,7 @@ void Manage_Class::main_function()
 			DEBUG_PRINTLN(index_of_this_meal);
 
 			DEBUG_PRINTLN("Start Erogation!");
+			display.start_erogation();
 
 			// drop the portion and update the done_meal array if success
 			done_meal[index_of_this_meal] = feed.feed(adj_gr_meal[index_of_this_meal]);
@@ -358,8 +360,8 @@ void Manage_Class::main_function()
 
 				update_current_food_schedule(); // update values on display
 				update_next_food_schedule(); // update next hour on display
-				display_operation_completed();
-				display_update();
+				display.operation_completed();
+				display.update();
 			}
 
 			card_rw.save_cycle_data();
